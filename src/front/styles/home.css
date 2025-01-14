@@ -38,13 +38,6 @@
     margin-bottom: 20px;
   }
 
-  .carousel-item:nth-child(1) {
-    background-image: url('https://cgoe.stanford.edu/sites/default/files/styles/widescreen_small/public/2020-08/online-executive-education-program-through-OpenClassrooms.jpg?itok=BSkQYTog');
-    color: white;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-}
-  
-  @media (max-width: 1250px) {
     .jumbotron h1 {
       font-size: 2rem;
     }
@@ -68,7 +61,6 @@
     .info-card h5 {
       font-size: 1.2rem;
     }
-  }
   
   @media (max-width: 740px) {
     .jumbotron h1 {
