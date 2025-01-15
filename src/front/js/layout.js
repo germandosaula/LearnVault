@@ -33,7 +33,7 @@ const Layout = () => {
                         <Route element={<h1>Not found!</h1>} />
                         
                             {/* Redirect root to login */}
-                        <Route path="/" element={<Navigate to="/login" />} />
+                        <Route path="/" element={<Navigate to="/home" />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
 
