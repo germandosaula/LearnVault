@@ -29,7 +29,7 @@ const cardsData = [
   },
 ];
 
-const WhyChooseLearnVault = () => {
+export const WhyChooseLearnVault = () => {
   return (
     <Box
       sx={{
@@ -123,5 +123,3 @@ const WhyChooseLearnVault = () => {
     </Box>
   );
 };
-
-export default WhyChooseLearnVault;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/SuperposedTitle.css";
 
-const SuperposedTitle = ({ text, dynamicColor }) => {
+export const SuperposedTitle = ({ text, dynamicColor }) => {
   const [currentColor, setCurrentColor] = useState(dynamicColor);
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -22,5 +22,3 @@ const SuperposedTitle = ({ text, dynamicColor }) => {
     </div>
   );
 };
-
-export default SuperposedTitle;

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, Typography } from "@mui/material";
 import Jumbo from "../../img/Jumbo.jpg";
 
-const Jumbotron = () => {
+export const Jumbotron = () => {
     const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
     const [isHovering, setIsHovering] = useState(false);
 
@@ -71,5 +71,3 @@ const Jumbotron = () => {
         </Box>
     );
 };
-
-export default Jumbotron;

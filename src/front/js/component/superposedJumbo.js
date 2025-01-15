@@ -1,7 +1,7 @@
 import React from "react";
 import "../../styles/SuperposedJumbo.css";
 
-const SuperposedJumbo = ({ text }) => {
+export const SuperposedJumbo = ({ text }) => {
   return (
     <div className="superposed-jumbo-container">
       <h1 className="superposed-jumbo-title">
@@ -11,5 +11,3 @@ const SuperposedJumbo = ({ text }) => {
     </div>
   );
 };
-
-export default SuperposedJumbo;

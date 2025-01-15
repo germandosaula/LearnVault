@@ -41,7 +41,7 @@ const features = [
   },
 ];
 
-const FeatureCarousel = () => {
+export const FeaturesCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = () => {
@@ -185,5 +185,3 @@ const FeatureCarousel = () => {
     </Box>
   );
 };
-
-export default FeatureCarousel;
