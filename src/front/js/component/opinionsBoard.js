@@ -29,7 +29,7 @@ const testimonials = [
   },
 ];
 
-const OpinionsBoard = ({ onBackgroundChange }) => {
+export const OpinionsBoard = ({ onBackgroundChange }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -167,5 +167,3 @@ const OpinionsBoard = ({ onBackgroundChange }) => {
     </Box>
   );
 };
-
-export default OpinionsBoard;
