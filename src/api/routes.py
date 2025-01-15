@@ -5,11 +5,15 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from flask_jwt_extended import jwt_required
+
 
 api = Blueprint('api', __name__)
 
 # Allow CORS requests to this API
 CORS(api)
+
+
 
 
 @api.route('/hello', methods=['POST', 'GET'])
@@ -20,3 +24,9 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+
+@api.route('/dashboard', methods=['GET'])
+
+def dashboard():
+    
