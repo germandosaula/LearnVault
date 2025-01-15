@@ -9,7 +9,7 @@ const testimonials = [
     message:
       "The training program is going well, I wake up with a smile on my face. My mentor is such a great listener and I really love the community spirit among students.",
     image: "https://randomuser.me/api/portraits/men/1.jpg",
-    bgColor: "#FFD700",
+    bgColor: "#70AE98",
   },
   {
     name: "Sophia",
@@ -24,7 +24,7 @@ const testimonials = [
     role: "UX Designer",
     message:
       "The collaboration and learning opportunities here are incredible.",
-    image: "https://randomuser.me/api/portraits/men/2.jpg",
+    image: "https://randomuser.me/api/portraits/men/39.jpg",
     bgColor: "#87CEFA",
   },
 ];
