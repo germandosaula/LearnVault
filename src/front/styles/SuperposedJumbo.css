@@ -1,0 +1,36 @@
+.superposed-jumbo-container {
+  position: absolute;
+  top: 90%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.superposed-jumbo-title {
+  position: relative;
+  font-size: 3.5rem;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1;
+}
+
+.superposed-jumbo-solid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  color: white;
+  z-index: 2;
+}
+
+.superposed-jumbo-outline {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  color: transparent;
+  -webkit-text-stroke: 2px white;
+  z-index: 1;
+  transform: translateY(-50%);
+}
