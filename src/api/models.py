@@ -42,7 +42,9 @@ class Document(db.Model):
 
 class Favorite(db.Model):
     __tablename__ = 'favorites' 
-    
+
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True) 
     document_id = db.Column(db.Integer, db.ForeignKey('documents.id'), primary_key=True) 
 
     user = db.relationship('User', back_populates='favorites')
