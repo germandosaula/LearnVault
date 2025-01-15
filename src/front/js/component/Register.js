@@ -14,7 +14,6 @@ export const Register = () => {
 
   // To handle error or validation messages
   const [errorMessage, setErrorMessage] = useState('');
-  // To handle success messages
   const [successMessage, setSuccessMessage] = useState('');
 
   // Update state as the user types in the inputs
