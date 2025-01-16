@@ -1,6 +1,7 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Box, Button, TextField, Typography, Checkbox, FormControlLabel, Grid, Avatar, Link } from '@mui/material';
+import "../../styles/login.css"
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -9,10 +10,8 @@ export const Login = () => {
     email: '',
     password: '',
   });
-
   // To handle error or validation messages
   const [errorMessage, setErrorMessage] = useState('');
-
   // Update state as the user types in the inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,11 +20,9 @@ export const Login = () => {
       [name]: value,
     }));
   };
-
   // Basic validations and form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     // Simple client-side validation
     if (!formData.email || !formData.password) {
       setErrorMessage('All fields are required.');
@@ -67,54 +64,106 @@ export const Login = () => {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: '500px' }}>
-      <h2 className="mb-4">Login</h2>
-      {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email Address:
-          </label>
-          <input
-            type="email"
-            className="form-control"
-            name="email"
-            id="email"
-            placeholder="e.g., user@example.com"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">
-            Password:
-          </label>
-          <input
-            type="password"
-            className="form-control"
-            name="password"
-            id="password"
-            placeholder="********"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary w-100">
-          Login
-        </button>
-      </form>
-      <p className="mt-3">
-        Don't have an account?{' '}
-        <span
-          className="text-primary"
-          style={{ textDecoration: 'underline', cursor: 'pointer' }}
-          onClick={() => navigate('/register')}
+    <Grid
+      container
+      className="login-container"
+    >
+      <Grid
+        item
+        xs={12}
+        md={6}
+        className="login-left"
+      >
+        <Typography
+          variant="h3"
+          className="login-title"
         >
-          Register here
-        </span>
-      </p>
-    </div>
+          LearnVault
+        </Typography>
+        <Box>
+          <Typography className="login-text">
+            <strong>Adaptable performance</strong>
+            <br />
+            Our product effortlessly adjusts to your needs, boosting efficiency and simplifying your tasks.
+          </Typography>
+
+          <Typography className="login-text">
+            <strong>Built to last</strong>
+            <br />
+            Experience unmatched durability that goes above and beyond with a lasting investment.
+          </Typography>
+
+          <Typography className="login-text">
+            <strong>Great user experience</strong>
+            <br />
+            Integrate our product into your routine with an intuitive and easy-to-use interface.
+          </Typography>
+
+          <Typography className="login-text">
+            <strong>Innovative functionality</strong>
+            <br />
+            Stay ahead with features that set new standards, addressing your evolving needs better than the rest.
+          </Typography>
+        </Box>
+      </Grid>
+
+      <Grid
+        item
+        xs={12}
+        md={6}
+        className="login-right"
+      >
+        <Box className="login-card">
+          <Typography
+            variant="h5"
+            className="login-card-title"
+          >
+            Sign in
+          </Typography>
+
+          <form>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Email"
+              name="email"
+              className="login-input"
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Password"
+              type="password"
+              name="password"
+              className="login-input"
+            />
+            <FormControlLabel
+              control={<Checkbox />}
+              label="Remember me"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              className="login-button"
+            >
+              Sign in
+            </Button>
+            <Typography
+              variant="body2"
+              className="login-footer"
+            >
+              Don’t have an account?{" "}
+              <Link
+                onClick={() => navigate("/register")}
+                className="login-link"
+              >
+                Sign up
+              </Link>
+            </Typography>
+          </form>
+        </Box>
+      </Grid>
+    </Grid>
   );
 };
