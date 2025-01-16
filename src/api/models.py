@@ -10,7 +10,6 @@ class User(db.Model):
     email = db.Column(db.String(100), nullable=False, unique=True)  
     password = db.Column(db.String(250), nullable=False)  
     
-
     favorites = db.relationship('Favorite', back_populates='user')
 
     def __repr__(self):
@@ -32,6 +31,7 @@ class Document(db.Model):
     description = db.Column(db.String(200), nullable=True)
     type = db.Column(db.String(100), nullable=False) 
     category = db.Column(db.String(100), nullable=False)
+    
     favorites = db.relationship('Favorite', back_populates='document')
 
     def __repr__(self):
@@ -41,8 +41,9 @@ class Document(db.Model):
 class Favorite(db.Model):  
     __tablename__ = 'favorites'  
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)  
-    document_id = db.Column(db.Integer, db.ForeignKey('documents.id'), primary_key=True)  
+    id = db.Column(db.Integer, primary_key=True) 
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  
+    document_id = db.Column(db.Integer, db.ForeignKey('documents.id'), nullable=False)  
 
     user = db.relationship('User', back_populates='favorites')
     document = db.relationship('Document', back_populates='favorites')
