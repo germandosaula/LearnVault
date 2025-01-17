@@ -56,7 +56,7 @@ export const FeaturesCarousel = () => {
     <Box
       sx={{
         position: "relative",
-        width: "100vw",
+        width: "100%",
         height: "60vh",
         overflow: "hidden",
         display: "flex",
@@ -66,9 +66,9 @@ export const FeaturesCarousel = () => {
       <Box
         sx={{
           display: "flex",
-          width: `${features.length * 100}vw`,
+          width: "100%",
           height: "100%",
-          transform: `translateX(-${currentSlide * 100}vw)`,
+          transform: `translateX(-${currentSlide * 100}%)`,
           transition: "transform 0.5s ease",
         }}
       >
@@ -76,13 +76,13 @@ export const FeaturesCarousel = () => {
           <Box
             key={index}
             sx={{
-              flex: "0 0 100vw",
+              flex: "0 0 100%",
               height: "100%",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-around",
-              padding: "20px",
               background: feature.gradient,
+              padding: "20px",
               boxSizing: "border-box",
             }}
           >
@@ -100,9 +100,9 @@ export const FeaturesCarousel = () => {
               <Typography
                 variant="h3"
                 sx={{
-                  fontWeight: "bold", fontFamily: "'Poppins', sans-serif",
-                  mb: 2,
                   fontWeight: "bold",
+                  fontFamily: "'Poppins', sans-serif",
+                  mb: 2,
                   color: "#fff",
                   textShadow: "2px 2px 6px rgba(0, 0, 0, 0.7)",
                 }}
@@ -112,7 +112,7 @@ export const FeaturesCarousel = () => {
               <Typography
                 variant="body1"
                 sx={{
-                  fontWeight: "bold", fontFamily: "'Poppins', sans-serif",
+                  fontFamily: "'Poppins', sans-serif",
                   color: "#fff",
                   textShadow: "2px 2px 4px rgba(0, 0, 0, 0.6)",
                 }}
@@ -120,7 +120,6 @@ export const FeaturesCarousel = () => {
                 {feature.description}
               </Typography>
             </Box>
-
             <Box
               sx={{
                 flex: "1",
@@ -128,13 +127,14 @@ export const FeaturesCarousel = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                textShadow: "2px 2px 6px rgba(0, 0, 0, 0.7)",
               }}
             >
               <img
                 src={feature.image}
                 alt={feature.title}
                 style={{
-                  maxWidth: "300px",
+                  maxWidth: "80%",
                   height: "auto",
                   objectFit: "contain",
                 }}
@@ -143,44 +143,37 @@ export const FeaturesCarousel = () => {
           </Box>
         ))}
       </Box>
-
       <Button
         onClick={handlePrev}
         sx={{
           position: "absolute",
-          left: "30px",
+          left: "20px",
           top: "50%",
           transform: "translateY(-50%)",
           zIndex: 2,
-          bgcolor: "white",
-          borderRadius: "50%",
-          p: 1,
           minWidth: "40px",
           minHeight: "40px",
-          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
-          "&:hover": { bgcolor: "gray.200" },
+          color: "#fff",
+          "&:hover": { color: "#f1f1f1" },
         }}
       >
-        <ArrowBackIosIcon />
+        <ArrowBackIosIcon fontSize="large" />
       </Button>
       <Button
         onClick={handleNext}
         sx={{
           position: "absolute",
-          right: "30px",
+          right: "20px",
           top: "50%",
           transform: "translateY(-50%)",
           zIndex: 2,
-          bgcolor: "white",
-          borderRadius: "50%",
-          p: 1,
           minWidth: "40px",
           minHeight: "40px",
-          boxShadow: "0 4px 16px rgba(0, 0, 0, 0.1)",
-          "&:hover": { bgcolor: "gray.200" },
+          color: "#fff",
+          "&:hover": { color: "#f1f1f1" },
         }}
       >
-        <ArrowForwardIosIcon />
+        <ArrowForwardIosIcon fontSize="large" />
       </Button>
     </Box>
   );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Avatar, Grid, IconButton } from "@mui/material";
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
+import QuoteImage from "../../img/quote.png";
 
 const testimonials = [
   {
@@ -9,7 +10,7 @@ const testimonials = [
     message:
       "The training program is going well, I wake up with a smile on my face. My mentor is such a great listener and I really love the community spirit among students.",
     image: "https://randomuser.me/api/portraits/men/1.jpg",
-    bgColor: "#70AE98",
+    gradient: "linear-gradient(to right, #FFC3A0, #FFECB3)",
   },
   {
     name: "Sophia",
@@ -17,7 +18,7 @@ const testimonials = [
     message:
       "LearnVault has been a game-changer for my career. The resources are top-notch, and I love how personalized the experience feels.",
     image: "https://randomuser.me/api/portraits/women/1.jpg",
-    bgColor: "#FFA07A",
+    gradient: "linear-gradient(to right, #FFECB3, #B5EAD7)",
   },
   {
     name: "John",
@@ -25,7 +26,7 @@ const testimonials = [
     message:
       "The collaboration and learning opportunities here are incredible.",
     image: "https://randomuser.me/api/portraits/men/39.jpg",
-    bgColor: "#87CEFA",
+    gradient: "linear-gradient(to right, #B5EAD7, #C9C9F5)",
   },
 ];
 
@@ -34,7 +35,7 @@ export const OpinionsBoard = ({ onBackgroundChange }) => {
 
   useEffect(() => {
     if (onBackgroundChange) {
-      onBackgroundChange(testimonials[currentIndex].bgColor);
+      onBackgroundChange(testimonials[currentIndex].gradient);
     }
   }, [currentIndex, onBackgroundChange]);
 
@@ -48,102 +49,157 @@ export const OpinionsBoard = ({ onBackgroundChange }) => {
     );
   };
 
-  const { bgColor, name, role, message, image } = testimonials[currentIndex];
+  const { gradient, name, role, message, image } = testimonials[currentIndex];
 
   return (
     <Box
       sx={{
-        backgroundColor: bgColor,
+        background: gradient,
         py: 5,
-        overflow: "hidden",
-        transition: "background-color 1s ease",
+        px: 3,
         position: "relative",
+        overflow: "hidden",
+        transition: "background 0.5s ease",
       }}
     >
-      <Grid
-        container
-        spacing={3}
-        justifyContent="center"
-        alignItems="center"
+      <Box
         sx={{
-          position: "relative",
-          zIndex: 2,
+          display: "flex",
+          width: "100%",
+          transform: `translateX(-${currentIndex * 100}%)`,
+          transition: "transform 0.5s ease",
         }}
       >
-        <Grid
-          item
-          xs={12}
-          md={4}
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            pr: { xs: 0, md: 4 },
-          }}
-        >
-          <Avatar
-            src={image}
-            alt={name}
+        {testimonials.map((testimonial, index) => (
+          <Box
+            key={index}
             sx={{
-              width: 180,
-              height: 180,
-              border: "6px solid white",
-              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)",
-            }}
-          />
-        </Grid>
-        <Grid
-          item
-          xs={12}
-          md={6}
-          sx={{
-            textAlign: { xs: "center", md: "left" },
-          }}
-        >
-          <Typography
-            variant="h4"
-            sx={{
-              color: "white",
-              fontWeight: "bold",
-              fontFamily: "'Poppins', sans-serif",
-              textShadow: "1px 1px 3px rgba(0, 0, 0, 0.5)",
-              mb: 1,
+              minWidth: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              px: 3,
             }}
           >
-            {name}
-          </Typography>
-          <Typography
-            variant="subtitle1"
-            sx={{
-              color: "white",
-              fontFamily: "'Poppins', sans-serif",
-              textShadow: "1px 1px 3px rgba(0, 0, 0, 0.5)",
-              mb: 2,
-            }}
-          >
-            {role}
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: "white",
-              fontFamily: "'Poppins', sans-serif",
-              lineHeight: 1.6,
-              fontStyle: "italic",
-              textShadow: "1px 1px 3px rgba(0, 0, 0, 0.5)",
-            }}
-          >
-            “{message}”
-          </Typography>
-        </Grid>
-      </Grid>
-
-      <Box sx={{ textAlign: "center", mt: 4 }}>
+            <Grid container spacing={3} alignItems="center">
+              <Grid
+                item
+                xs={12}
+                md={4}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "relative", // Asegura que sea relativo
+                }}
+              >
+                <Avatar
+                  src={testimonial.image}
+                  alt={testimonial.name}
+                  sx={{
+                    width: 200,
+                    height: 200,
+                    border: "6px solid white",
+                    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
+                    marginLeft: "250px",
+                  }}
+                />
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                sx={{
+                  position: "relative",
+                  textAlign: { xs: "center", md: "left" },
+                }}
+              >
+                <img
+                  src={QuoteImage}
+                  alt="Quote"
+                  style={{
+                    position: "absolute",
+                    top: "10px",
+                    left: "-50px",
+                    width: "60px",
+                    height: "60px",
+                    opacity: 0.8,
+                    filter: "drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.5))",
+                  }}
+                />
+                <img
+                  src={QuoteImage}
+                  alt="Quote"
+                  style={{
+                    position: "absolute",
+                    top: "200px",
+                    left: "900px",
+                    width: "60px",
+                    height: "60px",
+                    opacity: 0.8,
+                    transform: "rotate(180deg)",
+                    filter: "drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.5))",
+                  }}
+                />
+                <Typography
+                  variant="h4"
+                  sx={{
+                    color: "white",
+                    fontWeight: "bold",
+                    fontFamily: "'Poppins', sans-serif",
+                    textShadow: "2px 2px 6px rgba(0, 0, 0, 0.7)",
+                    mb: 1,
+                    fontSize: "3rem",
+                  }}
+                >
+                  {testimonial.name}
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    color: "white",
+                    fontFamily: "'Poppins', sans-serif",
+                    textShadow: "2px 2px 6px rgba(0, 0, 0, 0.7)",
+                    mb: 2,
+                    fontSize: "1.35rem",
+                  }}
+                >
+                  {testimonial.role}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: "white",
+                    fontFamily: "'Poppins', sans-serif",
+                    fontStyle: "italic",
+                    lineHeight: 1.6,
+                    textShadow: "1px 1px 3px rgba(0, 0, 0, 0.5)",
+                    fontSize: "1.3rem",
+                  }}
+                >
+                  “{testimonial.message}”
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        ))}
+      </Box>
+      <Box
+        sx={{
+          textAlign: "center",
+          mt: 4,
+          position: "relative",
+          zIndex: 3,
+        }}
+      >
         <IconButton
           onClick={handlePrev}
           disableRipple
           sx={{
             color: "white",
+            "& svg": {
+              fontSize: "2rem",
+            },
             "&:hover": {
               color: "lightgray",
             },
@@ -156,6 +212,9 @@ export const OpinionsBoard = ({ onBackgroundChange }) => {
           disableRipple
           sx={{
             color: "white",
+            "& svg": {
+              fontSize: "2rem",
+            },
             "&:hover": {
               color: "lightgray",
             },

@@ -33,20 +33,26 @@ export const WhyChooseLearnVault = () => {
   return (
     <Box
       sx={{
-        py: 8,
-        px: 4,
-        position: "relative",
-        overflow: "hidden",
+        minHeight: "50vh", // Altura mínima para el componente principal
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
         fontFamily: "'Poppins', sans-serif",
         fontWeight: "bold",
-        marginBottom: 0,
         backgroundImage: `url(${chooseBg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
+        px: 4,
       }}
     >
-      <Grid container spacing={4} justifyContent="center" sx={{ marginBottom: 0 }}>
+      <Grid
+        container
+        spacing={10}
+        justifyContent="center"
+        alignItems="center"
+        sx={{ maxWidth: "1200px", width: "100%" }} // Limita el ancho máximo
+      >
         {cardsData.map((card, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Card
@@ -54,14 +60,13 @@ export const WhyChooseLearnVault = () => {
                 borderRadius: "16px",
                 boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
                 transition: "transform 0.3s ease",
-                height: "100%",
+                minHeight: "320px", // Altura mínima de las tarjetas
                 background: card.gradient,
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "center",
+                justifyContent: "space-between",
                 alignItems: "center",
                 "&:hover": { transform: "scale(1.05)" },
-                marginBottom: 0,
               }}
             >
               <CardContent
@@ -70,8 +75,7 @@ export const WhyChooseLearnVault = () => {
                   flexDirection: "column",
                   alignItems: "center",
                   textAlign: "center",
-                  padding: "20px",
-                  marginBottom: 0,
+                  padding: "30px",
                 }}
               >
                 <Avatar
@@ -79,10 +83,7 @@ export const WhyChooseLearnVault = () => {
                     bgcolor: "transparent",
                     width: 80,
                     height: 80,
-                    mb: 2,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    mb: 3,
                     "& svg": {
                       background: card.gradient,
                       WebkitBackgroundClip: "text",
@@ -97,7 +98,7 @@ export const WhyChooseLearnVault = () => {
                   variant="h6"
                   sx={{
                     fontWeight: "bold",
-                    mb: 1,
+                    mb: 2,
                     color: "#fff",
                     textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)",
                   }}
@@ -108,9 +109,8 @@ export const WhyChooseLearnVault = () => {
                   variant="body2"
                   sx={{
                     color: "#fff",
-                    textShadow: "1px 1px 3px rgba(0, 0, 0, 0.5)",
-                    lineHeight: "1.6",
-                    marginBottom: 0,
+                    textShadow: "1px 1px 4px rgba(0, 0, 0, 0.5)",
+                    lineHeight: "1.8",
                   }}
                 >
                   {card.description}

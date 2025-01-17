@@ -102,4 +102,3 @@
   .carousel-item:not(.active) {
     z-index: 1; /* Coloca los slides no activos detrás */
   }
-  
