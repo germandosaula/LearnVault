@@ -67,67 +67,44 @@ export const Login = () => {
     <Grid
       container
       className="login-container"
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "linear-gradient(135deg, #c9c9f5, #ffc3a0, #ffe6e6)",
+        padding: "2rem",
+        textAlign: "center",
+      }}
     >
-      <Grid
-        item
-        xs={12}
-        md={6}
-        className="login-left"
-      >
-        <Typography
-          variant="h3"
-          className="login-title"
+      <Grid item>
+        <Box
+          className="login-card"
+          sx={{
+            width: "100%",
+            maxWidth: "400px",
+            padding: "2.5rem",
+            borderRadius: "8px",
+            backgroundColor: "white",
+            boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.4)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.5rem",
+          }}
         >
-          LearnVault
-        </Typography>
-        <Box>
-          <Typography className="login-text">
-            <strong>Adaptable performance</strong>
-            <br />
-            Our product effortlessly adjusts to your needs, boosting efficiency and simplifying your tasks.
-          </Typography>
-
-          <Typography className="login-text">
-            <strong>Built to last</strong>
-            <br />
-            Experience unmatched durability that goes above and beyond with a lasting investment.
-          </Typography>
-
-          <Typography className="login-text">
-            <strong>Great user experience</strong>
-            <br />
-            Integrate our product into your routine with an intuitive and easy-to-use interface.
-          </Typography>
-
-          <Typography className="login-text">
-            <strong>Innovative functionality</strong>
-            <br />
-            Stay ahead with features that set new standards, addressing your evolving needs better than the rest.
-          </Typography>
-        </Box>
-      </Grid>
-
-      <Grid
-        item
-        xs={12}
-        md={6}
-        className="login-right"
-      >
-        <Box className="login-card">
-          <Typography
-            variant="h5"
-            className="login-card-title"
-          >
+          <Typography variant="h5" className="login-card-title">
             Sign in
           </Typography>
-
-          <form>
+          <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
               variant="outlined"
               label="Email"
               name="email"
+              value={formData.email}
+              onChange={handleChange}
               className="login-input"
+              sx={{ marginBottom: "20px" }}
             />
             <TextField
               fullWidth
@@ -135,29 +112,32 @@ export const Login = () => {
               label="Password"
               type="password"
               name="password"
+              value={formData.password}
+              onChange={handleChange}
               className="login-input"
+              sx={{ marginBottom: "20px" }}
             />
             <FormControlLabel
               control={<Checkbox />}
               label="Remember me"
+              sx={{ marginBottom: "20px" }}
             />
             <Button
               type="submit"
               fullWidth
               variant="contained"
               className="login-button"
+              sx={{
+                padding: "10px",
+                fontSize: "16px",
+                marginBottom: "15px",
+              }}
             >
               Sign in
             </Button>
-            <Typography
-              variant="body2"
-              className="login-footer"
-            >
+            <Typography variant="body2" className="login-footer">
               Don’t have an account?{" "}
-              <Link
-                onClick={() => navigate("/register")}
-                className="login-link"
-              >
+              <Link onClick={() => navigate("/register")} className="login-link">
                 Sign up
               </Link>
             </Typography>

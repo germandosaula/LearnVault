@@ -127,6 +127,7 @@ export const FeaturesCarousel = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                textShadow: "2px 2px 6px rgba(0, 0, 0, 0.7)",
               }}
             >
               <img

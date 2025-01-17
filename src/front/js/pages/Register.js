@@ -1,6 +1,8 @@
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Box, Button, TextField, Typography, Grid, Link } from "@mui/material";
+import { CheckCircleOutline, People, School, GroupWork } from "@mui/icons-material"
+import "../../styles/signup.css";
 
 
 export const Register = () => {
@@ -94,87 +96,124 @@ export const Register = () => {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: '500px' }}>
-      <h2 className="mb-4">Register</h2>
-      {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
-      {successMessage && (
-        <div className="alert alert-success">{successMessage}</div>
-      )}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">
-            Name:
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            name="name"
-            id="name"
-            placeholder="e.g., John Doe"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email Address:
-          </label>
-          <input
-            type="email"
-            className="form-control"
-            name="email"
-            id="email"
-            placeholder="e.g., user@example.com"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">
-            Password:
-          </label>
-          <input
-            type="password"
-            className="form-control"
-            name="password"
-            id="password"
-            placeholder="********"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="confirmPassword" className="form-label">
-            Confirm Password:
-          </label>
-          <input
-            type="password"
-            className="form-control"
-            name="confirmPassword"
-            id="confirmPassword"
-            placeholder="********"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-success w-100">
-          Register
-        </button>
-      </form>
-      <p className="mt-3">
-        Already have an account?{' '}
-        <span
-          className="text-primary"
-          style={{ textDecoration: 'underline', cursor: 'pointer' }}
-          onClick={() => navigate('/login')}
-        >
-          Login here
-        </span>
-      </p>
-    </div>
+    <Grid container className="signup-container">
+      <Grid item xs={12} md={6} className="signup-left">
+        <Typography variant="h3" className="signup-title" style={{
+          fontFamily: "Poppins, sans-serif",
+          fontWeight: 900,
+          fontSize: "2.5rem",
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}>
+          Join LearnVault
+        </Typography>
+        <Box className="signup-info">
+          <Box className="signup-item">
+            <CheckCircleOutline className="signup-icon" />
+            <Typography className="signup-text">
+              <strong>Why join?</strong>
+              <br />
+              Gain access to cutting-edge features, personalized content, and tools to boost your learning experience.
+            </Typography>
+          </Box>
+          <Box className="signup-item">
+            <People className="signup-icon" />
+            <Typography className="signup-text">
+              <strong>Collaborate effortlessly</strong>
+              <br />
+              Connect with like-minded learners and share knowledge across a global community.
+            </Typography>
+          </Box>
+          <Box className="signup-item">
+            <School className="signup-icon" />
+            <Typography className="signup-text">
+              <strong>Learn smarter</strong>
+              <br />
+              Unlock new opportunities with resources tailored to your needs.
+            </Typography>
+          </Box>
+          <Box className="signup-item">
+            <GroupWork className="signup-icon" />
+            <Typography className="signup-text">
+              <strong>Work together</strong>
+              <br />
+              Build stronger connections with powerful collaboration tools.
+            </Typography>
+          </Box>
+        </Box>
+      </Grid>
+
+      <Grid item xs={12} md={6} className="signup-right">
+        <Box className="signup-card">
+          <Typography variant="h5" className="signup-card-title" sx={{ marginBottom: "20px" }}>
+            Create an Account
+          </Typography>
+
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="signup-input"
+              sx={{ marginBottom: "20px" }}
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="signup-input"
+              sx={{ marginBottom: "20px" }}
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="signup-input"
+              sx={{ marginBottom: "20px" }}
+            />
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Confirm Password"
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="signup-input"
+              sx={{ marginBottom: "20px" }}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              className="signup-button"
+              sx={{ marginBottom: "20px" }}
+            >
+              Sign up
+            </Button>
+            {errorMessage && (
+              <Typography className="signup-error">
+                {errorMessage}
+              </Typography>
+            )}
+            <Typography variant="body2" className="signup-footer">
+              Already have an account?{" "}
+              <Link onClick={() => navigate("/login")} className="signup-link">
+                Sign in
+              </Link>
+            </Typography>
+          </form>
+        </Box>
+      </Grid>
+    </Grid>
   );
-};
+}

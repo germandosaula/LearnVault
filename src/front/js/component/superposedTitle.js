@@ -7,26 +7,36 @@ export const SuperposedTitle = ({
   rotation = 0,
 }) => {
   const containerRef = useRef(null);
-  const [hasBeenVisible, setHasBeenVisible] = useState(false); // Nueva lógica para mantener la animación
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const [hasBeenVisible, setHasBeenVisible] = useState(false);
 
   useEffect(() => {
+    const handleScroll = () => {
+      setHasScrolled(true);
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setHasBeenVisible(true); // Activa la animación si el componente es visible
+        if (entry.isIntersecting && hasScrolled) {
+          setTimeout(() => {
+            setHasBeenVisible(true);
+          }, 500);
         }
       },
-      { threshold: 0.05 } // Inicia la animación antes (5% visible)
+      { threshold: 0.05 }
     );
 
     if (containerRef.current) {
       observer.observe(containerRef.current);
     }
 
+    window.addEventListener("scroll", handleScroll);
+
     return () => {
       if (containerRef.current) observer.unobserve(containerRef.current);
+      window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [hasScrolled]);
 
   return (
     <div
@@ -38,6 +48,7 @@ export const SuperposedTitle = ({
         left: position.left,
         transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
         zIndex: 999,
+        textShadow: "2px 2px 6px rgba(0, 0, 0, 0.7)",
       }}
     >
       <ul className="Words">
@@ -55,3 +66,4 @@ export const SuperposedTitle = ({
     </div>
   );
 };
+

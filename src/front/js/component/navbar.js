@@ -36,12 +36,13 @@ export const Navbar = () => {
 				left: "50%",
 				transform: "translateX(-50%)",
 				width: "90%",
-				background: "rgba(255, 255, 255, 0.3)",
+				background: "rgba(255, 255, 255, 0.4)",
 				backdropFilter: "blur(10px)",
 				borderRadius: "16px",
-				boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+				boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)",
 				zIndex: 1000,
 				padding: "5px",
+				marginTop: "16px",
 			}}
 		>
 			<AppBar
@@ -57,7 +58,6 @@ export const Navbar = () => {
 						justifyContent: "space-between",
 					}}
 				>
-					{/* Logo */}
 					<Typography
 						variant="h6"
 						component={Link}
@@ -68,6 +68,7 @@ export const Navbar = () => {
 							color: "white",
 							cursor: "pointer",
 							textDecoration: "none",
+							textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)",
 							"&:hover": {
 								textDecoration: "none",
 								color: "white",
@@ -77,7 +78,6 @@ export const Navbar = () => {
 						LearnVault
 					</Typography>
 
-					{/* Links */}
 					<Box
 						sx={{
 							display: "flex",
@@ -86,13 +86,13 @@ export const Navbar = () => {
 						}}
 					>
 						<Button
-							sx={{ color: "white", fontWeight: "bold" }}
+							sx={{ color: "white", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)", }}
 							onClick={() => handleScrollTo("features")}
 						>
 							Features
 						</Button>
 						<Button
-							sx={{ color: "white", fontWeight: "bold" }}
+							sx={{ color: "white", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)", }}
 							onClick={() => handleScrollTo("experiencies")}
 						>
 							Experiences
@@ -104,6 +104,7 @@ export const Navbar = () => {
 										color: "white",
 										fontWeight: "bold",
 										textTransform: "none",
+										textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)",
 									}}
 									onClick={() => navigate("/login")}
 								>
@@ -114,6 +115,7 @@ export const Navbar = () => {
 										color: "white",
 										fontWeight: "bold",
 										textTransform: "none",
+										textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)",
 									}}
 									onClick={() => navigate("/register")}
 								>

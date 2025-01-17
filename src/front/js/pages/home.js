@@ -31,7 +31,7 @@ export const Home = () => {
       </div>
       <SuperposedTitle
         text={["Users", "Experiences"]}
-        position={{ top: "198.7%", left: "50%" }}
+        position={{ top: "210%", left: "50%" }}
         rotation={0}
       />
       <div id="experiences">
