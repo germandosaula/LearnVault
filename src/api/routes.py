@@ -122,7 +122,7 @@ def handle_update_user(id):
     if user is None:
         return jsonify({'msg': 'User not found'}), 404
     if user.username != current_user and not current_user == "admin":
-        return jsonify({'msg': 'Permission denied'}), 403  # 403 Forbidden
+        return jsonify({'msg': 'Permission denied'}), 403 
 
     body = request.get_json()
     
@@ -141,10 +141,13 @@ def handle_update_user(id):
 @jwt_required()
 def handle_dashboard():
     
-    current_user = get_jwt_identity() 
+    current_user_email = get_jwt_identity() 
+    user = User.query.filter_by(email=current_user_email).first()
+    if user is None:
+        return jsonify({'msg': 'user not exist'}), 404 
 
     response_body = {
-        "message": f"This is the dashboard for user: {current_user}"
+        "message": f"This is the dashboard for user: {current_user_email}"
     }
 
     return jsonify(response_body), 200
@@ -154,10 +157,13 @@ def handle_dashboard():
 @jwt_required() 
 def handle_search():
     
-    current_user = get_jwt_identity()
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+    if user is None:
+        return jsonify({'msg': 'user not exist'}), 404
 
     response_body = {
-        "message": f"This is the search section for user: {current_user}"
+        "message": f"This is the search section for user: {current_user_email}"
     }
 
     return jsonify(response_body), 200
