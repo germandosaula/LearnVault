@@ -10,7 +10,13 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_tok
 
 api = Blueprint('api', __name__)
 
-# Allow CORS requests to this API
+@api.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = 'https://super-couscous-wr94q9xj47xgcgg9v-3000.app.github.dev'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE'
+    return response
+
 CORS(api)
 
 ## CRUD Users
@@ -21,8 +27,6 @@ def handle_create_user():
     
     if body is None:
         return jsonify({'msg': 'Error'}), 400
-    if "id" not in body:
-        return jsonify({'msg': 'Error'}), 400
     if "username" not in body: 
         return jsonify({'msg': 'Error'}), 400
     if "email" not in body: 
@@ -32,7 +36,6 @@ def handle_create_user():
     
     user = User()
     
-    user.id = body["id"]
     user.username = body["username"]
     user.email = body["email"]
     user.password = body["password"]
@@ -141,10 +144,13 @@ def handle_update_user(id):
 @jwt_required()
 def handle_dashboard():
     
-    current_user = get_jwt_identity() 
+    current_user_email = get_jwt_identity() 
+    user = User.query.filter_by(email=current_user_email).first()
+    if user is None:
+        return jsonify({'msg': 'user not exist'}), 404 
 
     response_body = {
-        "message": f"This is the dashboard for user: {current_user}"
+        "message": f"This is the dashboard for user: {current_user_email}"
     }
 
     return jsonify(response_body), 200
@@ -154,13 +160,31 @@ def handle_dashboard():
 @jwt_required() 
 def handle_search():
     
-    current_user = get_jwt_identity()
+    current_user_email = get_jwt_identity()
+    user = User.query.filter_by(email=current_user_email).first()
+    if user is None:
+        return jsonify({'msg': 'user not exist'}), 404
 
     response_body = {
-        "message": f"This is the search section for user: {current_user}"
+        "message": f"This is the search section for user: {current_user_email}"
     }
 
     return jsonify(response_body), 200
 
-## CRUD Documents
-
+# Nueva ruta para login y autenticación
+@api.route('/login', methods=['POST'])
+def login_user():
+    # Ruta para autenticar a un usuario con email y password.
+    # Genera un token JWT si las credenciales son válidas.
+    body = request.get_json()
+    if body is None or "email" not in body or "password" not in body:
+        return jsonify({'msg': 'Faltan credenciales'}), 400
+    email = request.get_json()['email']
+    password = request.get_json()['password']
+    # Buscar usuario por email
+    user = User.query.filter_by(email=email, password=password).first()
+    if user is None or not user.password == password:  # Comprobar que el usuario exista y la contraseña coincida
+        return jsonify({'msg': 'Credenciales inválidas'}), 401
+    # Generar el token JWT
+    token = create_access_token(identity=user.email)
+    return jsonify({'msg': 'Inicio de sesión exitoso', 'token': token}), 200
