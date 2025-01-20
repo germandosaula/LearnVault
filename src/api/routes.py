@@ -13,7 +13,7 @@ api = Blueprint('api', __name__)
 # Allow CORS requests to this API
 CORS(api)
 
-
+## CRUD Users
 @api.route('/signup', methods=['POST'])
 def handle_create_user():
     
@@ -122,7 +122,7 @@ def handle_update_user(id):
     if user is None:
         return jsonify({'msg': 'User not found'}), 404
     if user.username != current_user and not current_user == "admin":
-        return jsonify({'msg': 'Permission denied'}), 403  # 403 Forbidden
+        return jsonify({'msg': 'Permission denied'}), 403 
 
     body = request.get_json()
     
@@ -162,6 +162,5 @@ def handle_search():
 
     return jsonify(response_body), 200
 
+## CRUD Documents
 
-
-   
