@@ -49,7 +49,7 @@ export const Register = () => {
     }
 
     try {
-      const response = await fetch('https://super-couscous-wr94q9xj47xgcgg9v-3001.app.github.dev/api/signup', {
+      const response = await fetch(process.env.BACKEND_URL + "/api/signup", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
