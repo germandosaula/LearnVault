@@ -10,7 +10,13 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_tok
 
 api = Blueprint('api', __name__)
 
-# Allow CORS requests to this API
+@api.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = 'https://super-couscous-wr94q9xj47xgcgg9v-3000.app.github.dev'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE'
+    return response
+
 CORS(api)
 
 
@@ -21,8 +27,6 @@ def handle_create_user():
     
     if body is None:
         return jsonify({'msg': 'Error'}), 400
-    if "id" not in body:
-        return jsonify({'msg': 'Error'}), 400
     if "username" not in body: 
         return jsonify({'msg': 'Error'}), 400
     if "email" not in body: 
@@ -32,7 +36,6 @@ def handle_create_user():
     
     user = User()
     
-    user.id = body["id"]
     user.username = body["username"]
     user.email = body["email"]
     user.password = body["password"]

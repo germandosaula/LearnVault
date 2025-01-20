@@ -9,7 +9,7 @@ export const Register = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -34,7 +34,7 @@ export const Register = () => {
 
     // Simple client-side validation
     if (
-      !formData.name ||
+      !formData.username ||
       !formData.email ||
       !formData.password ||
       !formData.confirmPassword
@@ -49,13 +49,13 @@ export const Register = () => {
     }
 
     try {
-      const response = await fetch('https://miniature-space-telegram-g45vgq5r75jw3wj94-3001.app.github.dev/api/signup', {
+      const response = await fetch('https://super-couscous-wr94q9xj47xgcgg9v-3001.app.github.dev/api/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: formData.name,
+          username: formData.username,
           email: formData.email,
           password: formData.password,
         }),
@@ -72,7 +72,7 @@ export const Register = () => {
       setSuccessMessage('Registration successful! You can now log in.');
 
       setFormData({
-        name: '',
+        username: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -146,9 +146,9 @@ export const Register = () => {
             <TextField
               fullWidth
               variant="outlined"
-              label="Name"
-              name="name"
-              value={formData.name}
+              label="Username"
+              name="username"
+              value={formData.username}
               onChange={handleChange}
               className="signup-input"
               sx={{ marginBottom: "20px" }}
