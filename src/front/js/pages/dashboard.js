@@ -1,5 +1,5 @@
 // Dashboard.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Button, Modal, Typography } from "@mui/material";
 import { OrganizationPlanning } from "../component/dashboard/OrganizationPlanning";
 import { Gamification } from "../component/dashboard/Gamification";
@@ -18,7 +18,7 @@ export const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://miniature-space-telegram-g45vgq5r75jw3wj94-3001.app.github.dev/dashboard", {
+      const response = await axios.get(process.env.BACKEND_URL + "/api/login", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -33,7 +33,7 @@ export const Dashboard = () => {
   const fetchSearchData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://miniature-space-telegram-g45vgq5r75jw3wj94-3001.app.github.dev/search", {
+      const response = await axios.get(process.env.BACKEND_URL + "/api/search", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
