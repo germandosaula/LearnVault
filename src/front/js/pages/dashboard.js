@@ -7,9 +7,49 @@ import "../../styles/Dashboard/dashboard.css";
 
 export const Dashboard = () => {
   const [openProfileModal, setOpenProfileModal] = useState(false);
+  const [user, setUser] = useState(null); // Store user information
+  const [dashboardMessage, setDashboardMessage] = useState(""); // Store dashboard data
+  const [searchMessage, setSearchMessage] = useState(""); // Store search data
 
   const handleOpenProfile = () => setOpenProfileModal(true);
   const handleCloseProfile = () => setOpenProfileModal(false);
+
+  // Fetch dashboard data
+  const fetchDashboardData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get("https://miniature-space-telegram-g45vgq5r75jw3wj94-3001.app.github.dev/dashboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setDashboardMessage(response.data.message);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error.response.data);
+    }
+  };
+
+  // Fetch search data
+  const fetchSearchData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get("https://miniature-space-telegram-g45vgq5r75jw3wj94-3001.app.github.dev/search", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setSearchMessage(response.data.message);
+    } catch (error) {
+      console.error("Error fetching search data:", error.response.data);
+    }
+  };
+
+  useEffect(() => {
+    // Authenticate and fetch data on component mount
+  
+    fetchDashboardData();
+    fetchSearchData();
+  }, []);
 
   return (
     <Box className="dashboard-container">

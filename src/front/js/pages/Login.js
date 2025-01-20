@@ -30,7 +30,7 @@ export const Login = () => {
     }
 
     try {
-      const response = await fetch('https://miniature-space-telegram-g45vgq5r75jw3wj94-3001.app.github.dev/api/auth', {
+      const response = await fetch('https://miniature-space-telegram-g45vgq5r75jw3wj94-3001.app.github.dev/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
