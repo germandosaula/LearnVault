@@ -165,6 +165,20 @@ def handle_search():
 
     return jsonify(response_body), 200
 
-
-
-   
+# Nueva ruta para login y autenticación
+@api.route('/login', methods=['POST'])
+def login_user():
+    # Ruta para autenticar a un usuario con email y password.
+    # Genera un token JWT si las credenciales son válidas.
+    body = request.get_json()
+    if body is None or "email" not in body or "password" not in body:
+        return jsonify({'msg': 'Faltan credenciales'}), 400
+    email = request.get_json()['email']
+    password = request.get_json()['password']
+    # Buscar usuario por email
+    user = User.query.filter_by(email=email, password=password).first()
+    if user is None or not user.password == password:  # Comprobar que el usuario exista y la contraseña coincida
+        return jsonify({'msg': 'Credenciales inválidas'}), 401
+    # Generar el token JWT
+    token = create_access_token(identity=user.email)
+    return jsonify({'msg': 'Inicio de sesión exitoso', 'token': token}), 200
