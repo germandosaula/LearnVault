@@ -6,13 +6,14 @@ from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
+import os
 
 
 api = Blueprint('api', __name__)
 
 @api.after_request
 def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = 'https://super-couscous-wr94q9xj47xgcgg9v-3000.app.github.dev'
+    response.headers['Access-Control-Allow-Origin'] =  os.getenv("FRONT_URL")
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE'
     return response
@@ -188,3 +189,4 @@ def login_user():
     # Generar el token JWT
     token = create_access_token(identity=user.email)
     return jsonify({'msg': 'Inicio de sesión exitoso', 'token': token}), 200
+
