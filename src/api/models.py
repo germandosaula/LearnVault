@@ -59,3 +59,10 @@ class Favorites(db.Model):
 
     def __repr__(self):
         return f'<Favorites user_id={self.user_id} document_id={self.documents_id}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "documents_id": self.documents_id
+        }
