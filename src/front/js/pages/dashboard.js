@@ -47,8 +47,6 @@ export const Dashboard = () => {
   useEffect(() => {
     // Authenticate and fetch data on component mount
   
-    fetchDashboardData();
-    fetchSearchData();
   }, []);
 
   return (
