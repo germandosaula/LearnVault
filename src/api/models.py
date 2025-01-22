@@ -32,6 +32,7 @@ class Documents(db.Model):
     type = db.Column(db.String(100), nullable=False) 
     subject = db.Column(db.String(100), nullable=False)
     
+    
     favorites = db.relationship('Favorites', back_populates='documents')
     
     def serialize(self):

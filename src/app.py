@@ -3,7 +3,6 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-import dropbox
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
@@ -26,13 +25,6 @@ app.url_map.strict_slashes = False
 app.config["JWT_SECRET_KEY"] = "scret_key"
 jwt = JWTManager(app)
 
-
-# dropbox configuration
-DROPBOX_ACCESS_TOKEN = os.getenv("DROPBOX_ACCESS_TOKEN")
-if DROPBOX_ACCESS_TOKEN:
-    dbx = dropbox.Dropbox(DROPBOX_ACCESS_TOKEN)
-else:
-    print("Error: No Dropbox access token found in environment variables.")
 
 
 # database configuration 
