@@ -33,7 +33,16 @@ class Documents(db.Model):
     subject = db.Column(db.String(100), nullable=False)
     
     favorites = db.relationship('Favorites', back_populates='documents')
-
+    
+    def serialize(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'type': self.type,
+            'subject': self.subject
+        }
+    
     def __repr__(self):
         return f'<Document {self.title}>'
 
