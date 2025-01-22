@@ -13,7 +13,7 @@ export const Dashboard = () => {
 
   const handleOpenProfile = () => setOpenProfileModal(true);
   const handleCloseProfile = () => setOpenProfileModal(false);
-
+  // Nuevo fetch
   // Fetch dashboard data
   const fetchDashboardData = async () => {
     try {
