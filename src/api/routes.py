@@ -2,7 +2,7 @@
 # This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 # """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Documents
+from api.models import db, User, Documents, Favorites
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
@@ -277,6 +277,67 @@ def handle_delete_document(id):
     db.session.commit()
 
     return jsonify({}), 204
+
+
+## CRUD Favoritos
+@api.route('/favorites', methods=['POST'])
+@jwt_required()
+def create_favorite():
+    """
+    Crear un nuevo favorito para el usuario autenticado.
+    """
+    current_user_id = get_jwt_identity()
+    body = request.get_json()
+
+    if not body or "documents_id" not in body:
+        return jsonify({'msg': 'Faltan datos'}), 400
+
+    document = Documents.query.get(body["documents_id"])
+    if not document:
+        return jsonify({'msg': 'Documento no encontrado'}), 404
+
+    new_favorite = Favorites(user_id=current_user_id, documents_id=body["documents_id"])
+    db.session.add(new_favorite)
+    db.session.commit()
+
+    return jsonify({'msg': 'Favorito agregado correctamente', 'favorite': new_favorite.id}), 201
+
+
+@api.route('/favorites', methods=['GET'])
+@jwt_required()
+def get_favorites():
+    """
+    Obtener todos los favoritos del usuario autenticado.
+    """
+    current_user_id = get_jwt_identity()
+    favorites = Favorites.query.filter_by(user_id=current_user_id).all()
+
+    result = [{
+        "id": fav.id,
+        "document_id": fav.documents.id,
+        "document_title": fav.documents.title,
+        "document_type": fav.documents.type
+    } for fav in favorites]
+
+    return jsonify(result), 200
+
+
+@api.route('/favorites/<int:id>', methods=['DELETE'])
+@jwt_required()
+def delete_favorite(id):
+    """
+    Eliminar un favorito por su ID.
+    """
+    current_user_id = get_jwt_identity()
+    favorite = Favorites.query.filter_by(id=id, user_id=current_user_id).first()
+    if not favorite:
+        return jsonify({'msg': 'Favorito no encontrado'}), 404
+
+    db.session.delete(favorite)
+    db.session.commit()
+    return jsonify({'msg': 'Favorito eliminado correctamente'}), 200
+
+
 
 
 
