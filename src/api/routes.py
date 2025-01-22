@@ -3,12 +3,10 @@
 # """
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Documents
-from app import  dbx
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 import os
-import dropbox, dropbox.exceptions, dropbox.files
 
 
 api = Blueprint('api', __name__)
@@ -284,27 +282,7 @@ def handle_delete_document(id):
 
 ## CRUD favorites:
 
-## CRUD upload && download from dropbox:
 
-@api.route('/upload_to_dropbox', methods=['POST'])
-@jwt_required()  
-def upload_to_dropbox():
-    
-    file = request.files.get('file')
-    
-    if not file:
-        return jsonify({'msg': 'No file provided'}), 400
-    
-    
-    filename = file.filename
-    dropbox_path = f"/{filename}" 
-
-    try:
-        
-        dbx.files_upload(file.read(), dropbox_path, mode=dropbox.files.WriteMode.overwrite)
-        return jsonify({'msg': f'File {filename} uploaded successfully to Dropbox.'}), 201
-    except dropbox.exceptions.ApiError as e:
-        return jsonify({'msg': f'Error uploading file to Dropbox: {e.error}'}), 500
 
 
 
