@@ -11,7 +11,7 @@ import { Footer } from "./component/footer";
 import { Login } from './pages/Login';
 import { Register } from './pages/Signup';
 import { Dashboard } from './pages/dashboard';
-import { ResourceList } from "./pages/resourceList";
+import { Search } from "./pages/Search";
 
 
 //create your first component
@@ -32,7 +32,7 @@ const Layout = () => {
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/dashboard" element={<Dashboard />} />
-                        <Route path="/resource-list" element={<ResourceList />} />
+                        <Route path="/search" element={<Search />} />
                     </Routes>
                     <Footer />
                 </ScrollToTop>
