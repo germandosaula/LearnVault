@@ -13,19 +13,24 @@ export const Dashboard = () => {
 
   const handleOpenProfile = () => setOpenProfileModal(true);
   const handleCloseProfile = () => setOpenProfileModal(false);
-
+  // Nuevo fetch
   // Fetch dashboard data
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(process.env.BACKEND_URL + "/api/login", {
+      const response = await fetch(process.env.BACKEND_URL + "/api/login", {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setDashboardMessage(response.data.message);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setDashboardMessage(data.message);
     } catch (error) {
-      console.error("Error fetching dashboard data:", error.response.data);
+      console.error("Error fetching dashboard data:", error);
     }
   };
 
@@ -33,21 +38,28 @@ export const Dashboard = () => {
   const fetchSearchData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(process.env.BACKEND_URL + "/api/search", {
+      const response = await fetch(process.env.BACKEND_URL + "/api/search", {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setSearchMessage(response.data.message);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setSearchMessage(data.message);
     } catch (error) {
-      console.error("Error fetching search data:", error.response.data);
+      console.error("Error fetching search data:", error);
     }
   };
 
   useEffect(() => {
     // Authenticate and fetch data on component mount
-  
+    fetchDashboardData();
+    fetchSearchData();
   }, []);
+
 
   return (
     <Box className="dashboard-container">
