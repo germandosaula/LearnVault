@@ -282,7 +282,7 @@ def handle_delete_document(id):
     return jsonify({}), 204
 
 
-## CRUD Favoritos
+## CRUD Favorites
 @api.route('/favorites', methods=['POST'])
 @jwt_required()
 def create_favorite():
@@ -339,6 +339,7 @@ def delete_favorite(id):
     
     return jsonify({'msg': 'Favorito eliminado correctamente'}), 200
 
+
 ## CRUD tasks for calendar
 @api.route('/tasks', methods=['POST'])
 @jwt_required()
@@ -372,4 +373,94 @@ def handle_create_task():
 
     return jsonify(task.serialize()), 201
 
+
+@api.route('/tasks', methods=['GET'])
+@jwt_required()
+def handle_get_tasks():
+    
+    current_user_email = get_jwt_identity()
+    
+    user = User.query.filter_by(email=current_user_email).first()
+    
+    if user is None:
+        return jsonify({'msg': 'User not found'}), 404
+
+    tasks = Task.query.filter_by(user_id=user.id).all()
+    
+    result = [task.serialize() for task in tasks]
+
+    return jsonify(result), 200
+
+
+@api.route('/tasks/<int:id>', methods=['GET'])
+@jwt_required()
+def handle_get_task(id):
+    
+    current_user_email = get_jwt_identity()
+    
+    user = User.query.filter_by(email=current_user_email).first()
+    
+    if user is None:
+        return jsonify({'msg': 'User not found'}), 404
+
+    task = Task.query.filter_by(id=id, user_id=user.id).first()
+    
+    if task is None:
+        return jsonify({'msg': 'Task not found'}), 404
+
+    return jsonify(task.serialize()), 200
+
+
+@api.route('/tasks/<int:id>', methods=['PUT'])
+@jwt_required()
+def handle_update_task(id):
+    
+    current_user_email = get_jwt_identity()
+    
+    user = User.query.filter_by(email=current_user_email).first()
+    
+    if user is None:
+        return jsonify({'msg': 'User not found'}), 404
+
+    task = Task.query.filter_by(id=id, user_id=user.id).first()
+    
+    if task is None:
+        return jsonify({'msg': 'Task not found'}), 404
+
+    body = request.get_json()
+
+    if "name" in body:
+        task.name = body["name"]
+    if "description" in body:
+        task.description = body["description"]
+    if "due_date" in body:
+        task.due_date = body["due_date"]
+    if "completed" in body:
+        task.completed = body["completed"]
+
+    db.session.commit()
+
+    return jsonify(task.serialize()), 200
+
+
+@api.route('/tasks/<int:id>', methods=['DELETE'])
+@jwt_required()
+def handle_delete_task(id):
+    
+    current_user_email = get_jwt_identity()
+    
+    user = User.query.filter_by(email=current_user_email).first()
+    
+    if user is None:
+        return jsonify({'msg': 'User not found'}), 404
+
+    task = Task.query.filter_by(id=id, user_id=user.id).first()
+    
+    if task is None:
+        return jsonify({'msg': 'Task not found'}), 404
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return jsonify({'msg': 'Task deleted successfully'}), 200
 
