@@ -80,19 +80,9 @@ export const Register = () => {
   };
 
 
-   
-
   return (
     <Grid container className="signup-container">
       <Grid item xs={12} md={6} className="signup-left">
-        <Typography variant="h3" className="signup-title" style={{
-          fontFamily: "Poppins, sans-serif",
-          fontWeight: 900,
-          fontSize: "2.5rem",
-          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
-        }}>
-          Join LearnVault
-        </Typography>
         <Box className="signup-info">
           <Box className="signup-item">
             <CheckCircleOutline className="signup-icon" />
@@ -184,6 +174,7 @@ export const Register = () => {
               variant="contained"
               className="signup-button"
               sx={{ marginBottom: "20px" }}
+              onClick={() => alert("User created")}
             >
               Sign up
             </Button>
