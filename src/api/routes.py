@@ -2,7 +2,7 @@
 # This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 # """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Documents, Favorites
+from api.models import db, User, Documents, Favorites, Task
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
@@ -20,7 +20,7 @@ def add_cors_headers(response):
 
 CORS(api)
 
-## CRUD Users
+## CRUD Users:
 @api.route('/signup', methods=['POST'])
 def handle_create_user():
     
@@ -141,11 +141,12 @@ def handle_update_user(id):
 
 
 
-@api.route('/dashboard', methods=['POST', 'GET'])
+@api.route('/dashboard', methods=['GET'])
 @jwt_required()
 def handle_dashboard():
     
     current_user_email = get_jwt_identity() 
+    
     user = User.query.filter_by(email=current_user_email).first()
     if user is None:
         return jsonify({'msg': 'user not exist'}), 404 
@@ -157,11 +158,12 @@ def handle_dashboard():
     return jsonify(response_body), 200
 
 
-@api.route('/search', methods=['POST', 'GET'])
+@api.route('/search', methods=['GET'])
 @jwt_required() 
 def handle_search():
     
     current_user_email = get_jwt_identity()
+    
     user = User.query.filter_by(email=current_user_email).first()
     if user is None:
         return jsonify({'msg': 'user not exist'}), 404
@@ -172,26 +174,27 @@ def handle_search():
 
     return jsonify(response_body), 200
 
-# Nueva ruta para login y autenticación
+
 @api.route('/login', methods=['POST'])
 def login_user():
-    # Ruta para autenticar a un usuario con email y password.
-    # Genera un token JWT si las credenciales son válidas.
+
     body = request.get_json()
+    
     if body is None or "email" not in body or "password" not in body:
         return jsonify({'msg': 'Faltan credenciales'}), 400
+    
     email = request.get_json()['email']
     password = request.get_json()['password']
-    # Buscar usuario por email
+
     user = User.query.filter_by(email=email, password=password).first()
-    if user is None or not user.password == password:  # Comprobar que el usuario exista y la contraseña coincida
+    
+    if user is None or not user.password == password: 
         return jsonify({'msg': 'Credenciales inválidas'}), 401
-    # Generar el token JWT
+    
     token = create_access_token(identity=user.email)
     return jsonify({'msg': 'Inicio de sesión exitoso', 'token': token}), 200
 
-## CRUD documents
-
+## CRUD Documents:
 @api.route('/documents', methods=['POST'])
 def handle_create_document():
     
@@ -283,9 +286,7 @@ def handle_delete_document(id):
 @api.route('/favorites', methods=['POST'])
 @jwt_required()
 def create_favorite():
-    """
-    Crear un nuevo favorito para el usuario autenticado.
-    """
+
     current_user_id = get_jwt_identity()
     body = request.get_json()
 
@@ -297,6 +298,7 @@ def create_favorite():
         return jsonify({'msg': 'Documento no encontrado'}), 404
 
     new_favorite = Favorites(user_id=current_user_id, documents_id=body["documents_id"])
+    
     db.session.add(new_favorite)
     db.session.commit()
 
@@ -306,10 +308,9 @@ def create_favorite():
 @api.route('/favorites', methods=['GET'])
 @jwt_required()
 def get_favorites():
-    """
-    Obtener todos los favoritos del usuario autenticado.
-    """
+
     current_user_id = get_jwt_identity()
+    
     favorites = Favorites.query.filter_by(user_id=current_user_id).all()
 
     result = [{
@@ -325,19 +326,50 @@ def get_favorites():
 @api.route('/favorites/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_favorite(id):
-    """
-    Eliminar un favorito por su ID.
-    """
+
     current_user_id = get_jwt_identity()
+    
     favorite = Favorites.query.filter_by(id=id, user_id=current_user_id).first()
+    
     if not favorite:
         return jsonify({'msg': 'Favorito no encontrado'}), 404
 
     db.session.delete(favorite)
     db.session.commit()
+    
     return jsonify({'msg': 'Favorito eliminado correctamente'}), 200
 
+## CRUD tasks for calendar
+@api.route('/tasks', methods=['POST'])
+@jwt_required()
+def handle_create_task():
+    
+    body = request.get_json()
 
+    if body is None:
+        return jsonify({'msg': 'Error'}), 400
+    if "name" not in body:
+        return jsonify({'msg': 'Name is required'}), 400
+    if "due_date" not in body:
+        return jsonify({'msg': 'Due date is required'}), 400
 
+    current_user_email = get_jwt_identity()
+    
+    user: User = User.query.filter_by(email=current_user_email).first()
+
+    if user is None:
+        return jsonify({'msg': 'User not found'}), 404
+
+    task = Task(
+        name=body["name"],
+        description=body["description"],
+        due_date=body["due_date"],
+        user_id=user.id
+    )
+
+    db.session.add(task)
+    db.session.commit()
+
+    return jsonify(task.serialize()), 201
 
 
