@@ -1,12 +1,18 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { AppBar, Toolbar, Typography, Box, Button, Avatar, Menu, MenuItem, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate } from "react-router-dom";
+// Importamos el contexto
+import { Context } from "../store/appContext";
 
 export const Navbar = () => {
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
-	const [anchorEl, setAnchorEl] = useState(null);
+	// Obtenemos el store y las acciones del contexto
+	const { store, actions } = useContext(Context);
 
+	// isLoggedIn derivado de store.token
+	const isLoggedIn = !!store.token;
+
+	const [anchorEl, setAnchorEl] = useState(null);
 	const navigate = useNavigate();
 
 	const handleMenuOpen = (event) => {
@@ -17,8 +23,11 @@ export const Navbar = () => {
 		setAnchorEl(null);
 	};
 
-	const handleLoginToggle = () => {
-		setIsLoggedIn(!isLoggedIn);
+	// Lógica para cerrar sesión a través del contexto
+	const handleLogout = () => {
+		actions.logout();
+		handleMenuClose();
+		navigate("/");
 	};
 
 	const handleScrollTo = (id) => {
@@ -86,13 +95,21 @@ export const Navbar = () => {
 						}}
 					>
 						<Button
-							sx={{ color: "white", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)", }}
+							sx={{
+								color: "white",
+								fontWeight: "bold",
+								textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)",
+							}}
 							onClick={() => handleScrollTo("features")}
 						>
 							Features
 						</Button>
 						<Button
-							sx={{ color: "white", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)", }}
+							sx={{
+								color: "white",
+								fontWeight: "bold",
+								textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)",
+							}}
 							onClick={() => handleScrollTo("experiencies")}
 						>
 							Experiences
@@ -130,7 +147,7 @@ export const Navbar = () => {
 										fontWeight: "bold",
 										textTransform: "none",
 									}}
-									onClick={handleLoginToggle}
+									onClick={handleLogout} // Llamamos la acción de logout
 								>
 									Logout
 								</Button>
@@ -150,7 +167,7 @@ export const Navbar = () => {
 									onClose={handleMenuClose}
 								>
 									<MenuItem onClick={() => navigate("/profile")}>Profile</MenuItem>
-									<MenuItem onClick={handleLoginToggle}>Logout</MenuItem>
+									<MenuItem onClick={handleLogout}>Logout</MenuItem>
 								</Menu>
 							</>
 						)}
