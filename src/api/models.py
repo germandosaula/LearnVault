@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
 
-
 db = SQLAlchemy()
 
 class User(db.Model):
@@ -12,7 +11,8 @@ class User(db.Model):
     password = db.Column(db.String(250), nullable=False)  
     
     favorites = db.relationship('Favorites', back_populates='user')
-
+    tasks = db.relationship('Task', back_populates='user') 
+    
     def __repr__(self):
         return f'<User {self.username}>'
 
@@ -32,7 +32,6 @@ class Documents(db.Model):
     description = db.Column(db.String(200), nullable=True)
     type = db.Column(db.String(100), nullable=False) 
     subject = db.Column(db.String(100), nullable=False)
-    tasks = db.relationship('Task', back_populates='user')
     
     favorites = db.relationship('Favorites', back_populates='documents')
     
@@ -69,6 +68,7 @@ class Favorites(db.Model):
             "documents_id": self.documents_id
         }
 
+
 class Task(db.Model):
     __tablename__ = 'tasks'
 
@@ -79,9 +79,8 @@ class Task(db.Model):
     completed = db.Column(db.Boolean, default=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    user = db.relationship('User', back_populates='tasks')
+    user = db.relationship('User', back_populates='tasks') 
 
-    # Aquí no debe haber ninguna relación con Documents
     def __repr__(self):
         return f'<Task {self.name}>'
 
