@@ -48,44 +48,37 @@ export const Register = () => {
       return;
     }
 
-    try {
-      const response = await fetch(process.env.BACKEND_URL + "/api/signup", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+    // Llamamos a la acción signup definida en flux.js
+    const { success, msg } = await actions.signup(
+      formData.username,
+      formData.email,
+      formData.password
+    );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setErrorMessage(data.msg || 'Error registering user.');
-        return;
-      }
-
-      setErrorMessage('');
-      setSuccessMessage('Registration successful! You can now log in.');
-
-      setFormData({
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-      });
-
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
-    } catch (error) {
-      console.error('Error connecting to the server:', error);
-      setErrorMessage('Could not connect to the server.');
+    if (!success) {
+      // Si la acción devuelve false, mostramos el error en pantalla
+      setErrorMessage(msg);
+      return;
     }
+
+    // Si todo fue bien
+    setErrorMessage('');
+    setSuccessMessage('Registration successful! You can now log in.');
+
+    // Reset de campos
+    setFormData({
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+
+    // Navegamos al login luego de 2 segundos
+    setTimeout(() => {
+      navigate('/login');
+    }, 2000);
   };
+
 
   return (
     <Grid container className="signup-container">

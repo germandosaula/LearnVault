@@ -1,63 +1,24 @@
-// Dashboard.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Box, Button, Modal, Typography } from "@mui/material";
 import { OrganizationPlanning } from "../component/dashboard/OrganizationPlanning";
 import { Gamification } from "../component/dashboard/Gamification";
+import { Context } from "../store/appContext"; // <--- Importamos el contexto
 import "../../styles/Dashboard/dashboard.css";
 
 export const Dashboard = () => {
   const [openProfileModal, setOpenProfileModal] = useState(false);
-  const [user, setUser] = useState(null); // Store user information
-  const [dashboardMessage, setDashboardMessage] = useState(""); // Store dashboard data
-  const [searchMessage, setSearchMessage] = useState(""); // Store search data
 
+  // Obtenemos el store y las acciones del contexto
+  const { store, actions } = useContext(Context);
+
+  // Manejo de apertura/cierre del modal de perfil
   const handleOpenProfile = () => setOpenProfileModal(true);
   const handleCloseProfile = () => setOpenProfileModal(false);
-  // Nuevo fetch
-  // Fetch dashboard data
-  const fetchDashboardData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(process.env.BACKEND_URL + "/api/login", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setDashboardMessage(data.message);
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-    }
-  };
-
-  // Fetch search data
-  const fetchSearchData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(process.env.BACKEND_URL + "/api/search", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setSearchMessage(data.message);
-    } catch (error) {
-      console.error("Error fetching search data:", error);
-    }
-  };
 
   useEffect(() => {
-    // Authenticate and fetch data on component mount
-    fetchDashboardData();
-    fetchSearchData();
+    // Al montar el componente, llamamos a las acciones que harán el fetch
+    actions.getDashboardData();
+    actions.getSearchData();
   }, []);
 
 
