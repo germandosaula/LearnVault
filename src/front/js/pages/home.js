@@ -35,7 +35,7 @@ export const Home = () => {
         rotation={0}
       />
       <div id="experiences">
-        <OpinionsBoard onBackgroundChange={handleBackgroundChange} />
+        <OpinionsBoard />
       </div>
     </div>
   );
