@@ -40,7 +40,7 @@ export const Navbar = () => {
 				backdropFilter: "blur(10px)",
 				borderRadius: "16px",
 				boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)",
-				zIndex: 1000,
+				zIndex: 1100,
 				padding: "5px",
 				marginTop: "16px",
 			}}

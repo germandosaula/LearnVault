@@ -11,7 +11,8 @@ class User(db.Model):
     password = db.Column(db.String(250), nullable=False)  
     
     favorites = db.relationship('Favorites', back_populates='user')
-
+    tasks = db.relationship('Task', back_populates='user') 
+    
     def __repr__(self):
         return f'<User {self.username}>'
 
@@ -65,4 +66,30 @@ class Favorites(db.Model):
             "id": self.id,
             "user_id": self.user_id,
             "documents_id": self.documents_id
+        }
+
+
+class Task(db.Model):
+    __tablename__ = 'tasks'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(255))
+    due_date = db.Column(db.DateTime)
+    completed = db.Column(db.Boolean, default=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user = db.relationship('User', back_populates='tasks') 
+
+    def __repr__(self):
+        return f'<Task {self.name}>'
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'due_date': self.due_date,
+            'completed': self.completed,
+            'user_id': self.user_id
         }
