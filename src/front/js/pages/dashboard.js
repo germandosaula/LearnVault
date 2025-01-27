@@ -1,22 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Box, Button, Modal, Typography } from "@mui/material";
-import { OrganizationPlanning } from "../component/dashboard/OrganizationPlanning";
+import { EditableCalendar } from "../component/dashboard/EditableCalendar";
 import { Gamification } from "../component/dashboard/Gamification";
-import { Context } from "../store/appContext"; // <--- Importamos el contexto
+import { Context } from "../store/appContext";
 import "../../styles/Dashboard/dashboard.css";
 
 export const Dashboard = () => {
   const [openProfileModal, setOpenProfileModal] = useState(false);
 
-  // Obtenemos el store y las acciones del contexto
   const { store, actions } = useContext(Context);
 
-  // Manejo de apertura/cierre del modal de perfil
   const handleOpenProfile = () => setOpenProfileModal(true);
   const handleCloseProfile = () => setOpenProfileModal(false);
 
   useEffect(() => {
-    // Al montar el componente, llamamos a las acciones que harán el fetch
     actions.getDashboardData();
     actions.getSearchData();
   }, []);
@@ -38,7 +35,7 @@ export const Dashboard = () => {
       <main className="dashboard-main">
         <section className="dashboard-section">
           <h2>Organización y Planificación</h2>
-          <OrganizationPlanning />
+          <EditableCalendar />
         </section>
 
         <section className="dashboard-section">

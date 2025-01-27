@@ -148,7 +148,7 @@ export const Search = () => {
       return matchesCategory && matchesQuery;
     });
     setFilteredResources(filtered);
-    setPage(1); // Reset pagination when filters change
+    setPage(1);
   };
 
   const handleTabChange = (event, newValue) => {
