@@ -210,12 +210,15 @@ def handle_create_document():
         return jsonify({'msg': 'Type is required'}), 400
     if "subject" not in body:
         return jsonify({'msg': 'Subject is required'}), 400
+    if "src_url" not in body:
+        return jsonify({'msg': 'Url is required'}), 400
 
     document = Documents(
         title=body["title"],
         description=body["description"],
         type=body["type"],
-        subject=body["subject"]
+        subject=body["subject"],
+        src_url=body["src_url"]   
     )
     
     db.session.add(document)
@@ -262,6 +265,8 @@ def handle_update_document(id):
         document.type = body["type"]
     if "subject" in body:
         document.subject = body["subject"]
+    if "src_url" in body:
+        document.src_url = body["src_url"]
 
     db.session.commit()
 
