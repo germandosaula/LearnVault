@@ -1,9 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, TextField, Button, Typography, Box, Divider } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Divider,
+  Grid,
+} from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
-import dayjs from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 
 export const EditableCalendar = () => {
   const [tasks, setTasks] = useState([]);
@@ -23,78 +32,83 @@ export const EditableCalendar = () => {
     setTasks(updatedTasks);
   };
 
-  const calculateTimeLeft = (date) => {
-    const now = dayjs();
-    const endDate = dayjs(date);
-    const diff = endDate.diff(now);
+  const groupedTasks = tasks.reduce((acc, task) => {
+    const date = dayjs(task.dueDate).format("YYYY-MM-DD");
+    acc[date] = acc[date] || [];
+    acc[date].push(task);
+    return acc;
+  }, {});
 
-    if (diff <= 0) return "Tiempo terminado";
+  const daysInWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-    return `${days} días, ${hours} horas, ${minutes} minutos`;
-  };
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-    <Box sx={{ maxWidth: 600, margin: "auto", padding: 2 }}>
-      <Card>
-        <CardContent>
-          <Typography variant="h5" gutterBottom>
-            Calendario Editable
-          </Typography>
-          <Box sx={{ display: "flex", gap: 2, marginBottom: 2 }}>
-            <TextField
-              label="Nombre de la tarea"
-              value={taskName}
-              onChange={(e) => setTaskName(e.target.value)}
-              fullWidth
-            />
-            <DatePicker
-              label="Fecha de entrega"
-              value={dueDate}
-              onChange={(newValue) => setDueDate(newValue)}
-              renderInput={(params) => <TextField {...params} fullWidth />}
-            />
-          </Box>
-          <Button variant="contained" onClick={addTask} fullWidth>
-            Añadir Tarea
-          </Button>
-          <Divider sx={{ marginY: 2 }} />
-          {tasks.length === 0 ? (
-            <Typography variant="body1">No hay tareas aún.</Typography>
-          ) : (
-            tasks.map((task, index) => (
-              <Card key={index} sx={{ marginBottom: 1 }}>
-                <CardContent>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Typography variant="body1">{task.name}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {calculateTimeLeft(task.dueDate)}
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={() => removeTask(index)}
-                    >
-                      Eliminar
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </CardContent>
-      </Card>
-    </Box>
+      <Box sx={{ maxWidth: 1000, margin: "auto", padding: 2 }}>
+        <Card>
+          <CardContent>
+            <Typography variant="h5" gutterBottom>
+              Calendario Editable
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, marginBottom: 2 }}>
+              <TextField
+                label="Nombre de la tarea"
+                value={taskName}
+                onChange={(e) => setTaskName(e.target.value)}
+                fullWidth
+              />
+              <DatePicker
+                label="Fecha de entrega"
+                value={dueDate}
+                onChange={(newValue) => setDueDate(newValue)}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+              />
+            </Box>
+            <Button variant="contained" onClick={addTask} fullWidth>
+              Añadir Tarea
+            </Button>
+            <Divider sx={{ marginY: 2 }} />
+            <Grid container spacing={2}>
+              {daysInWeek.map((day, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Card>
+                    <CardContent>
+                      <Typography variant="h6">{day}</Typography>
+                      <Divider sx={{ marginY: 1 }} />
+                      {Object.keys(groupedTasks).map((date) => {
+                        const tasksForDay = groupedTasks[date];
+                        if (dayjs(date).day() === index + 1) {
+                          return tasksForDay.map((task, idx) => (
+                            <Box
+                              key={idx}
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                marginBottom: 1,
+                              }}
+                            >
+                              <Typography variant="body1">{task.name}</Typography>
+                              <Button
+                                variant="outlined"
+                                color="error"
+                                size="small"
+                                onClick={() => removeTask(tasks.indexOf(task))}
+                              >
+                                Eliminar
+                              </Button>
+                            </Box>
+                          ));
+                        }
+                        return null;
+                      })}
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </CardContent>
+        </Card>
+      </Box>
     </LocalizationProvider>
   );
 };
