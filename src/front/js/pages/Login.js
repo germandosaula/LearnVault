@@ -1,24 +1,32 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, TextField, Typography, Checkbox, FormControlLabel, Grid, Link } from '@mui/material';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  Link
+} from '@mui/material';
 import "../../styles/Home/login.css";
-// Importa el Context
+
+
 import { Context } from "../store/appContext";
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from "../Firebase/Firebase"; 
 
 export const Login = () => {
   const navigate = useNavigate();
-
-  // Obtenemos store y actions del contexto
   const { store, actions } = useContext(Context);
 
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
-  
   const [errorMessage, setErrorMessage] = useState('');
 
- 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -27,27 +35,39 @@ export const Login = () => {
     }));
   };
 
-  // Envío del formulario
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validación simple del lado del cliente
     if (!formData.email || !formData.password) {
       setErrorMessage('All fields are required.');
       return;
     }
 
-    // Llamamos a login del flux
     const success = await actions.login(formData.email, formData.password);
 
     if (!success) {
-      // Si la acción devolvió false, tomamos el errorMessage del store
       setErrorMessage(store.errorMessage || 'Error logging in.');
       return;
     }
 
-    // Si fue exitoso, navegamos al dashboard
     navigate('/dashboard');
+  };
+
+  // 3. Función para iniciar sesión con Google
+  const handleGoogleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+
+    
+      console.log("Usuario de Google:", result.user);
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error al iniciar sesión con Google:", error);
+      setErrorMessage("Error logging in with Google");
+    }
   };
 
   return (
@@ -122,7 +142,6 @@ export const Login = () => {
             >
               Sign in
             </Button>
-            {/* Mostrar error si existe */}
             {errorMessage && (
               <Typography color="error" sx={{ marginBottom: "15px" }}>
                 {errorMessage}
@@ -135,6 +154,16 @@ export const Login = () => {
               </Link>
             </Typography>
           </form>
+
+          {/* 4. Botón para iniciar sesión con Google */}
+          <Button
+            variant="outlined"
+            onClick={handleGoogleLogin}
+            fullWidth
+            sx={{ marginTop: "15px" }}
+          >
+            Sign in with Google
+          </Button>
         </Box>
       </Grid>
     </Grid>
