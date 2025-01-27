@@ -28,11 +28,11 @@ export const Register = () => {
     }));
   };
 
-  // Basic validations and form submission
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Simple client-side validation
+   
     if (
       !formData.username ||
       !formData.email ||
@@ -48,7 +48,7 @@ export const Register = () => {
       return;
     }
 
-    // Llamamos a la acción signup definida en flux.js
+  
     const { success, msg } = await actions.signup(
       formData.username,
       formData.email,
