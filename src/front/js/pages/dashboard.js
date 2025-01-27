@@ -20,7 +20,7 @@ export const Dashboard = () => {
 
 
   return (
-    <Box className="dashboard-container">
+    <Box className="dashboard-container" sx={{ marginTop: "168px" }}>
       <header className="dashboard-header">
         <h1>LearnVault</h1>
         <nav className="navbar-links">

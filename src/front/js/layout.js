@@ -12,6 +12,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Signup';
 import { Dashboard } from './pages/dashboard';
 import { Search } from "./pages/Search";
+import { LoginSignUp } from "./pages/login-signup";
 
 
 //create your first component
@@ -29,7 +30,7 @@ const Layout = () => {
                     <Navbar />
                     <Routes>
                         <Route element={<Home />} path="/" />
-                        <Route path="/login" element={<Login />} />
+                        <Route path="/login" element={<LoginSignUp />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/search" element={<Search />} />

@@ -1,23 +1,15 @@
 import React, { useState } from "react";
-import {
-  Card,
-  CardContent,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Divider,
-  Grid,
-} from "@mui/material";
+import { Card, CardContent, TextField, Button, Typography, Box, Divider, Grid, IconButton } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
+import { ArrowBack, ArrowForward } from "@mui/icons-material";
 
 export const EditableCalendar = () => {
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState("");
   const [dueDate, setDueDate] = useState(null);
+  const [currentMonth, setCurrentMonth] = useState(dayjs());
 
   const addTask = () => {
     if (taskName && dueDate) {
@@ -39,75 +31,98 @@ export const EditableCalendar = () => {
     return acc;
   }, {});
 
-  const daysInWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const getDaysInMonth = () => {
+    const startOfMonth = currentMonth.startOf("month");
+    const endOfMonth = currentMonth.endOf("month");
+    const days = [];
+
+    for (let day = startOfMonth; day.isBefore(endOfMonth) || day.isSame(endOfMonth); day = day.add(1, "day")) {
+      days.push(day);
+    }
+
+    return days;
+  };
+
+  const daysInMonth = getDaysInMonth();
+
+  const handlePreviousMonth = () => {
+    setCurrentMonth(currentMonth.subtract(1, "month"));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(currentMonth.add(1, "month"));
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ maxWidth: 1000, margin: "auto", padding: 2 }}>
-        <Card>
-          <CardContent>
-            <Typography variant="h5" gutterBottom>
-              Calendario Editable
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2, marginBottom: 2 }}>
-              <TextField
-                label="Nombre de la tarea"
-                value={taskName}
-                onChange={(e) => setTaskName(e.target.value)}
-                fullWidth
-              />
-              <DatePicker
-                label="Fecha de entrega"
-                value={dueDate}
-                onChange={(newValue) => setDueDate(newValue)}
-                renderInput={(params) => <TextField {...params} fullWidth />}
-              />
-            </Box>
-            <Button variant="contained" onClick={addTask} fullWidth>
-              Añadir Tarea
-            </Button>
-            <Divider sx={{ marginY: 2 }} />
-            <Grid container spacing={2}>
-              {daysInWeek.map((day, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6">{day}</Typography>
-                      <Divider sx={{ marginY: 1 }} />
-                      {Object.keys(groupedTasks).map((date) => {
-                        const tasksForDay = groupedTasks[date];
-                        if (dayjs(date).day() === index + 1) {
-                          return tasksForDay.map((task, idx) => (
-                            <Box
-                              key={idx}
-                              sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                marginBottom: 1,
-                              }}
-                            >
-                              <Typography variant="body1">{task.name}</Typography>
-                              <Button
-                                variant="outlined"
-                                color="error"
-                                size="small"
-                                onClick={() => removeTask(tasks.indexOf(task))}
-                              >
-                                Eliminar
-                              </Button>
-                            </Box>
-                          ));
-                        }
-                        return null;
-                      })}
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
+      <Box sx={{ maxWidth: 1200, margin: "auto", padding: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+          <IconButton onClick={handlePreviousMonth}>
+            <ArrowBack />
+          </IconButton>
+          <Typography variant="h4" gutterBottom>
+            {currentMonth.format("MMMM YYYY")}
+          </Typography>
+          <IconButton onClick={handleNextMonth}>
+            <ArrowForward />
+          </IconButton>
+        </Box>
+        <Box sx={{ display: "flex", gap: 2, marginBottom: 3 }}>
+          <TextField
+            label="Nombre de la tarea"
+            value={taskName}
+            onChange={(e) => setTaskName(e.target.value)}
+            fullWidth
+          />
+          <TextField
+            type="date"
+            label=""
+            value={dueDate ? dayjs(dueDate).format("YYYY-MM-DD") : ""}
+            onChange={(e) => setDueDate(dayjs(e.target.value))}
+            fullWidth
+          />
+          <Button variant="contained" onClick={addTask}>
+            Añadir Tarea
+          </Button>
+        </Box>
+        <Grid container spacing={2} columns={7} sx={{ textAlign: "center" }}>
+          {daysInMonth.map((day) => (
+            <Grid item xs={1} key={day.format("YYYY-MM-DD")}>              
+              <Card sx={{ minHeight: 120, display: "flex", flexDirection: "column", justifyContent: "space-between", backgroundColor: "#f9f9f9" }}>
+                <CardContent>
+                  <Typography variant="subtitle2" color="textSecondary">
+                    {day.format("dddd")}
+                  </Typography>
+                  <Typography variant="h6">
+                    {day.format("D")}
+                  </Typography>
+                  <Divider sx={{ marginY: 1 }} />
+                  {(groupedTasks[day.format("YYYY-MM-DD")] || []).map((task, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: 1,
+                      }}
+                    >
+                      <Typography variant="body2">{task.name}</Typography>
+                      <Button
+                        variant="text"
+                        color="error"
+                        size="small"
+                        onClick={() => removeTask(tasks.indexOf(task))}
+                      >
+                        Eliminar
+                      </Button>
+                    </Box>
+                  ))}
+                </CardContent>
+              </Card>
             </Grid>
-          </CardContent>
-        </Card>
+          ))}
+        </Grid>
       </Box>
     </LocalizationProvider>
   );

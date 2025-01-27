@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Container, Grid, Card, CardContent, CardMedia, Typography, Button, Modal, Box, Pagination, Tabs, Tab, TextField, Select, MenuItem, InputLabel, FormControl} from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Container, Grid, Card, CardContent, CardMedia, Typography, Button, Modal, Box, Pagination, Tabs, Tab, TextField, Select, MenuItem, InputLabel, FormControl, styled } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import PropTypes from "prop-types";
 import "../../styles/Dashboard/search.css"
@@ -28,6 +28,23 @@ TabPanel.propTypes = {
 };
 
 export const Search = () => {
+  useEffect(() => {
+    document.body.style.background = "linear-gradient(135deg, #c9c9f5, #ffc3a0, #ffe6e6)";
+    document.body.style.backgroundRepeat = "no-repeat";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundAttachment = "fixed";
+    document.body.style.margin = "0";
+    document.body.style.padding = "0";
+
+    return () => {
+      document.body.style.background = "";
+      document.body.style.backgroundRepeat = "";
+      document.body.style.backgroundSize = "";
+      document.body.style.backgroundAttachment = "";
+      document.body.style.margin = "";
+      document.body.style.padding = "";
+    };
+  }, []);
   const [resources] = useState([
     {
       id: 1,
@@ -184,24 +201,60 @@ export const Search = () => {
     p: 4,
     borderRadius: 2,
     maxHeight: '70vh',
-    overflow: 'auto',
+    overflow: 'hidden',
   };
 
   return (
-    <Container>
+    <Container sx={{ marginTop: "168px" }}>
       <Typography
         variant="h4"
-        sx={{ fontWeight: "bold", fontFamily: "'Poppins', sans-serif" }}
+        sx={{ fontWeight: "bold", fontFamily: "'Poppins', sans-serif", color:"white", display: "flex", justifyContent: "center", alignItems: "center", }}
         gutterBottom
       >
         Resource and Video Search
       </Typography>
-
-      <Tabs value={tabValue} onChange={handleTabChange} aria-label="Search Tabs">
-        <Tab label="Resources" />
-        <Tab label="YouTube Videos" />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Tabs
+        value={tabValue}
+        onChange={handleTabChange}
+        aria-label="Search Tabs"
+        sx={{
+          borderRadius: 2,
+          backgroundColor: "#FFD9CF",
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+          padding: "8px",
+        }}
+      >
+        <Tab
+          label="Resources"
+          sx={{
+            color: "black",
+            "&.Mui-selected": {
+              color: "white",
+              backgroundColor: "#81B1CC",
+              borderRadius: 2,
+            },
+          }}
+        />
+        <Tab
+          label="YouTube Videos"
+          sx={{
+            color: "black",
+            "&.Mui-selected": {
+              color: "white",
+              backgroundColor: "#81B1CC",
+              borderRadius: 2,
+            },
+          }}
+        />
       </Tabs>
-
+      </Box>
       <TabPanel value={tabValue} index={0}>
         <Grid container spacing={2} sx={{ marginBottom: 2 }}>
           <Grid item xs={12} md={6}>
@@ -211,6 +264,7 @@ export const Search = () => {
               variant="outlined"
               value={searchQuery}
               onChange={handleSearchChange}
+              sx={{ background: "white", borderRadius: 2 }}
             />
           </Grid>
           <Grid item xs={12} md={6}>
@@ -220,6 +274,7 @@ export const Search = () => {
                 value={selectedCategory}
                 onChange={handleCategoryChange}
                 label="Filter by Category"
+                sx={{ background: "white", borderRadius: 2 }}
               >
                 {categories.map((category) => (
                   <MenuItem key={category} value={category}>
