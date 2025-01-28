@@ -14,10 +14,13 @@ export const LoginSignUp = () => {
   const { store, actions } = useContext(Context);
 
   const [formData, setFormData] = useState({
+    username: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,22 +32,21 @@ export const LoginSignUp = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     if (!formData.email || !formData.password) {
       setErrorMessage("All fields are required.");
       return;
     }
-  
+
     const success = await actions.login(formData.email, formData.password);
-  
+
     if (!success) {
       setErrorMessage(store.errorMessage || "Error logging in.");
       return;
     }
-  
+
     navigate("/dashboard");
   };
-  
 
   const handleGoogleLogin = async () => {
     try {
@@ -60,6 +62,38 @@ export const LoginSignUp = () => {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+      setErrorMessage("All fields are required.");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
+    const { success, msg } = await actions.signup(formData.username, formData.email, formData.password);
+
+    if (!success) {
+      setErrorMessage(msg);
+      return;
+    }
+
+    setErrorMessage("");
+    setSuccessMessage("Registration successful! You can now log in.");
+    setFormData({
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+
+    navigate("/login");
+  };
+
   const handleLoginClick = () => {
     setIsActive(false);
   };
@@ -71,15 +105,26 @@ export const LoginSignUp = () => {
   return (
     <Box className="new-login">
       <div className={`container ${isActive ? "active" : ""}`} id="container">
-        {/* Sign-Up Form */}
         <div className="form-container sign-up">
-          <form onSubmit={(e) => e.preventDefault()}>
-            <Typography variant="h4" component="h1" gutterBottom>
-              Create Account
+          <form onSubmit={handleSubmit}>
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              sx={{
+                background: 'linear-gradient(45deg, #ff9a8b, #ff6a88, #ff99ac)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontFamily: 'Poppins, sans-serif',
+                fontWeight: '500',
+                margin: 0,
+              }}
+            >
+              Join LearnVault
             </Typography>
             <Box
               className="social-icons"
-              sx={{ display: "flex", gap: 1, marginBottom: 2 }}
+              sx={{ display: "flex", gap: 1, marginBottom: 0 }}
             >
               <Button
                 variant="outlined"
@@ -96,7 +141,16 @@ export const LoginSignUp = () => {
               fullWidth
               placeholder="Name"
               margin="normal"
-              name="name"
+              name="username"
+              sx={{
+                background: 'transparent',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                },
+              }}
+              value={formData.username}
               onChange={handleChange}
             />
             <TextField
@@ -104,6 +158,15 @@ export const LoginSignUp = () => {
               placeholder="Email"
               margin="normal"
               name="email"
+              sx={{
+                background: 'transparent',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                },
+              }}
+              value={formData.email}
               onChange={handleChange}
             />
             <TextField
@@ -112,23 +175,67 @@ export const LoginSignUp = () => {
               placeholder="Password"
               margin="normal"
               name="password"
+              sx={{
+                background: 'transparent',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                },
+              }}
+              value={formData.password}
               onChange={handleChange}
             />
-            <Button variant="contained" fullWidth sx={{ marginTop: 2 }}>
+            <TextField
+              fullWidth
+              type="password"
+              placeholder="Confirm Password"
+              margin="normal"
+              name="confirmPassword"
+              sx={{
+                background: 'transparent',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                },
+              }}
+              value={formData.confirmPassword}
+              onChange={handleChange}
+            />
+            {errorMessage && (
+              <Typography color="error" variant="body2" sx={{ marginTop: 1 }}>
+                {errorMessage}
+              </Typography>
+            )}
+            {successMessage && (
+              <Typography color="success" variant="body2" sx={{ marginTop: 1 }}>
+                {successMessage}
+              </Typography>
+            )}
+            <Button type="submit" variant="contained" fullWidth sx={{ marginTop: 2 }}>
               Sign Up
             </Button>
           </form>
         </div>
 
-        {/* Sign-In Form */}
         <div className="form-container sign-in">
           <form onSubmit={handleLogin}>
-            <Typography variant="h4" component="h1" gutterBottom>
-              Sign In
+            <Typography variant="h4" component="h1" gutterBottom 
+            sx={{
+              background: 'linear-gradient(45deg, #ff9a8b, #ff6a88, #ff99ac)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontFamily: 'Poppins, sans-serif',
+              fontWeight: '500',
+              margin: 0,
+            }}
+          >
+              Login
             </Typography>
             <Box
               className="social-icons"
-              sx={{ display: "flex", marginBottom: 2 }}
+              sx={{ display: "flex", marginBottom: 1 }}
             >
               <Button
                 variant="outlined"
@@ -148,6 +255,14 @@ export const LoginSignUp = () => {
               placeholder="Email"
               margin="normal"
               name="email"
+              sx={{
+                background: 'transparent',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                },
+              }}
               value={formData.email}
               onChange={handleChange}
             />
@@ -157,10 +272,17 @@ export const LoginSignUp = () => {
               placeholder="Password"
               margin="normal"
               name="password"
+              sx={{
+                background: 'transparent',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    border: 'none',
+                  },
+                },
+              }}
               value={formData.password}
               onChange={handleChange}
             />
-            <a href="#">Forget Your Password?</a>
             <Button variant="contained" fullWidth sx={{ marginTop: 2 }} type="submit">
               Sign In
             </Button>
@@ -171,8 +293,6 @@ export const LoginSignUp = () => {
             </Typography>
           )}
         </div>
-
-        {/* Toggle Panel */}
         <div className="toggle-container">
           <div className="toggle">
             <div className="toggle-panel toggle-left">
@@ -186,6 +306,7 @@ export const LoginSignUp = () => {
                 className="hidden"
                 onClick={handleLoginClick}
                 variant="contained"
+                sx={{background: 'transparent !important'}}
               >
                 Sign In
               </Button>
@@ -201,6 +322,7 @@ export const LoginSignUp = () => {
                 className="hidden"
                 onClick={handleRegisterClick}
                 variant="contained"
+                sx={{background: 'transparent !important'}}
               >
                 Sign Up
               </Button>

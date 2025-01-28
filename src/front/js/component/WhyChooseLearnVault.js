@@ -33,7 +33,7 @@ export const WhyChooseLearnVault = () => {
   return (
     <Box
       sx={{
-        minHeight: "50vh",
+        minHeight: "80vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
