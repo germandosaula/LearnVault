@@ -62,7 +62,7 @@ export const FeaturesCarousel = () => {
       sx={{
         position: "relative",
         width: "100%",
-        height: "80vh",
+        height: "100vh",
         overflow: "hidden",
         display: "flex",
         alignItems: "center",

@@ -94,6 +94,18 @@ def handle_get_user(id):
 
     return jsonify(user), 200
 
+@api.route('/user/me', methods=['GET'])
+@jwt_required()
+def get_current_user():
+    current_user_email = get_jwt_identity()
+    print("Authenticated user email:", current_user_email)
+
+    user = User.query.filter_by(email=current_user_email).first()
+
+    if user is None:
+        return jsonify({'msg': 'User not found'}), 404
+
+    return jsonify(user.serialize()), 200
 
 @api.route('/user/<int:id>', methods=['DELETE'])
 @jwt_required()  
@@ -113,33 +125,29 @@ def handle_delete_user(id):
     
     return jsonify({}), 204
 
-    
-
 @api.route('/user/<int:id>', methods=['PUT'])
 @jwt_required() 
 def handle_update_user(id):
-    
     current_user = get_jwt_identity()
-    
+
     user = User.query.get(id)
-    
+
     if user is None:
         return jsonify({'msg': 'User not found'}), 404
-    if user.username != current_user and not current_user == "admin":
-        return jsonify({'msg': 'Permission denied'}), 403 
+
+    if user.id != int(current_user) and current_user != "admin":
+        return jsonify({'msg': 'Permission denied'}), 403
 
     body = request.get_json()
-    
+
     if "username" in body:
         user.username = body["username"]
     if "email" in body:
         user.email = body["email"]
-    
+
     db.session.commit()
-    
+
     return jsonify(user.serialize()), 200
-
-
 
 @api.route('/dashboard', methods=['GET'])
 @jwt_required()
@@ -177,21 +185,22 @@ def handle_search():
 
 @api.route('/login', methods=['POST'])
 def login_user():
-
     body = request.get_json()
-    
-    if body is None or "email" not in body or "password" not in body:
-        return jsonify({'msg': 'Faltan credenciales'}), 400
-    
-    email = request.get_json()['email']
-    password = request.get_json()['password']
 
-    user = User.query.filter_by(email=email, password=password).first()
-    
-    if user is None or not user.password == password: 
+    if not body or "email" not in body or "password" not in body:
+        return jsonify({'msg': 'Faltan credenciales'}), 400
+
+    email = body["email"]
+    password = body["password"]
+
+    user = User.query.filter_by(email=email, password=password).first()  # Comparación directa
+
+    if user is None: 
         return jsonify({'msg': 'Credenciales inválidas'}), 401
-    
-    token = create_access_token(identity=user.email)
+
+    # Convertir user.id a string antes de generar el token
+    token = create_access_token(identity=str(user.id))
+
     return jsonify({'msg': 'Inicio de sesión exitoso', 'token': token}), 200
 
 ## CRUD Documents:

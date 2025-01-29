@@ -23,34 +23,38 @@ const getState = ({ getStore, getActions, setStore }) => {
 			// Ejemplo de login centralizado
 			login: async (email, password) => {
 				try {
-					// Petición a  backend
 					const response = await fetch(process.env.BACKEND_URL + "/api/login", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({ email, password }),
 					});
+			
 					const data = await response.json();
-
+					console.log("Login response:", data);
+			
 					if (!response.ok) {
-						// Guarda el mensaje de error en el store para consultarlo luego
 						setStore({ errorMessage: data.msg || "Error logging in.", token: null });
-						return false; // Para que sepas en el componente que falló
+						return false;
 					}
-
-					// Si la petición fue exitosa, guarda el token y limpia el errorMessage
+			
+					// Guardamos el token
 					setStore({ token: data.token, errorMessage: null });
-
-					// Opcional: también guardarlo en localStorage, si quieres persistir la sesión
 					localStorage.setItem("token", data.token);
-
-					return true; 
+			
+					// Extraer el user_id del token y guardarlo
+					const decodedToken = JSON.parse(atob(data.token.split(".")[1]));
+					console.log("Decoded token:", decodedToken);
+			
+					setStore({ user: { id: decodedToken.sub } });
+			
+					return true;
 				} catch (error) {
 					console.error("Error connecting to the server:", error);
 					setStore({ errorMessage: "Could not connect to the server.", token: null });
 					return false;
 				}
 			},
-
+		
 			signup: async (username, email, password) => {
                 try {
                     const response = await fetch(process.env.BACKEND_URL + "/api/signup", {

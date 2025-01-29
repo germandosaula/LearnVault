@@ -29,7 +29,7 @@ TabPanel.propTypes = {
 
 export const Search = () => {
   useEffect(() => {
-    document.body.style.background = "linear-gradient(135deg, #c9c9f5, #ffc3a0, #ffe6e6)";
+    document.body.style.background = "linear-gradient(45deg, #ff9a8b, #ff6a88, #ff99ac)";
     document.body.style.backgroundRepeat = "no-repeat";
     document.body.style.backgroundSize = "cover";
     document.body.style.backgroundAttachment = "fixed";
