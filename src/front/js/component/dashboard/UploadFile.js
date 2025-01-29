@@ -1,70 +1,90 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Box, Button, Modal, Typography, Input } from "@mui/material";
-import { getStorage, ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  Typography,
+  CircularProgress,
+  TextField,
+  Paper,
+  Card,
+  CardContent,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../../Firebase/Firebase";
+
 export const UploadFile = () => {
   const [file, setFile] = useState(null);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  useEffect(() => {
-    fetchUploadedFiles();
-  }, []);
-  const storage = getStorage();
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState({ text: "", severity: "info" });
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  // Manejar selección de archivo
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
+
+  // Manejar la subida del archivo
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file) {
+      setMessage({ text: "Por favor selecciona un archivo.", severity: "warning" });
+      setOpenSnackbar(true);
+      return;
+    }
+
+    setUploading(true);
     const storageRef = ref(storage, `uploads/${file.name}`);
     try {
       await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(storageRef);
-      setUploadedFiles([...uploadedFiles, { name: file.name, url: downloadURL }]);
+      console.log("Archivo subido con éxito:", downloadURL);
+      setMessage({ text: "Archivo subido con éxito.", severity: "success" });
       setFile(null);
     } catch (error) {
       console.error("Error al subir el archivo:", error);
+      setMessage({ text: "Error al subir el archivo.", severity: "error" });
+    } finally {
+      setUploading(false);
+      setOpenSnackbar(true);
     }
   };
-   const fetchUploadedFiles = async () => {
-     const storageRef = ref(storage, "uploads/");
-     try {
-       const result = await listAll(storageRef);
-       const files = await Promise.all(
-         result.items.map(async (fileRef) => {
-           const url = await getDownloadURL(fileRef);
-           return { name: fileRef.name, url };
-         })
-       );
-       setUploadedFiles(files);
-     } catch (error) {
-       console.error("Error al obtener archivos:", error);
-     }
-   };
+
   return (
-    <Box className="container">
-        <section className="dashboard-section">
-          <h2>Subir Documentos</h2>
-          <Input type="file" onChange={handleFileChange} />
-          <Button variant="contained" onClick={handleUpload} disabled={!file}>
-            Subir Archivo
-          </Button>
-          <div className="uploaded-files">
-            <h3>Archivos Subidos</h3>
-            <ul>
-              {uploadedFiles.map((file, index) => (
-                <li key={index}>
-                  <a href={file.url} target="_blank" rel="noopener noreferrer">
-                    {file.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
+    <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+      <Paper elevation={4} sx={{ width: "100%", maxWidth: 500, padding: 4, borderRadius: 3 }}>
+        <Typography variant="h5" sx={{ textAlign: "center", fontWeight: "bold", mb: 2 }}>
+          📁 Subir Documento
+        </Typography>
+        <Card sx={{ boxShadow: 2, borderRadius: 2 }}>
+          <CardContent>
+            <Box component="form" noValidate autoComplete="off" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <TextField
+                type="file"
+                onChange={handleFileChange}
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleUpload}
+                disabled={!file || uploading}
+                fullWidth
+              >
+                {uploading ? <CircularProgress size={24} /> : "Subir Archivo"}
+              </Button>
+            </Box>
+          </CardContent>
+        </Card>
+      </Paper>
+
+      {/* Notificación Snackbar */}
+      <Snackbar open={openSnackbar} autoHideDuration={4000} onClose={() => setOpenSnackbar(false)}>
+        <Alert onClose={() => setOpenSnackbar(false)} severity={message.severity} sx={{ width: "100%" }}>
+          {message.text}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
-
-
-
-
-
-
