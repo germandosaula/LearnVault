@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
-import { 
-  Box, Typography, Avatar, Button, Modal, TextField, 
-  IconButton, CircularProgress, Divider 
+import {
+  Box, Typography, Avatar, Button, Modal, TextField,
+  IconButton, CircularProgress, Divider
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { Context } from "../store/appContext";
@@ -11,11 +11,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import UploadIcon from "@mui/icons-material/Upload";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import DashboardIcon from "@mui/icons-material/Dashboard"; // 🏠 Icono de Dashboard
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import EditIcon from "@mui/icons-material/Edit";
 import { Search } from "../pages/Search";
-// import { UploadResources } from "../component/dashboard/UploadResources";
 import { FavoritesList } from "../component/dashboard/FavoritesList";
-import { AchievementsSlider } from "../component/dashboard/ArchivementsSlider";
+import { GamificationHub } from "../component/dashboard/GamificationHub";
+import { UploadFile } from "../component/dashboard/UploadFile"
 
 export const Dashboard = () => {
   const { store, actions } = useContext(Context);
@@ -25,6 +26,8 @@ export const Dashboard = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     if (!store.token || !store.user?.id) {
@@ -56,6 +59,49 @@ export const Dashboard = () => {
   }, [store.token, store.user?.id, navigate]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const handleOpenModal = () => setOpenModal(true);
+  const handleCloseModal = () => setOpenModal(false);
+
+  const handleChange = (e) => {
+    setUserData({ ...userData, [e.target.name]: e.target.value });
+  };
+
+  const handleUpdate = async () => {
+    if (!userData?.username || !userData?.email) {
+      console.error("🚨 Username or email is missing.");
+      return;
+    }
+
+    const updatedData = {
+      username: String(userData.username).trim(),
+      email: String(userData.email).trim(),
+    };
+
+    try {
+      const response = await fetch(
+        `${process.env.BACKEND_URL}/api/user/${store.user.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${store.token}`,
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
+
+      const result = await response.json();
+      if (!response.ok) {
+        console.error("❌ Failed to update user data:", result);
+        return;
+      }
+
+      setUserData(result);
+      handleCloseModal();
+    } catch (error) {
+      console.error("🔥 Error updating user data:", error);
+    }
+  };
 
   return (
     <Box sx={{ display: "flex", height: "100vh", background: "linear-gradient(45deg, #ff9a8b, #ff6a88, #ff99ac)" }}>
@@ -71,6 +117,7 @@ export const Dashboard = () => {
           color: "white",
           borderRadius: "50%",
           boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
+          transition: "left 0.3s ease-in-out",
           "&:hover": { backgroundColor: "#333" },
         }}
       >
@@ -80,7 +127,7 @@ export const Dashboard = () => {
       {/* Sidebar */}
       <motion.div
         initial={{ x: -250 }}
-        animate={{ x: isSidebarOpen ? 0 : -250 }}
+        animate={{ x: isSidebarOpen ? 0 : -260 }}
         transition={{ duration: 0.3 }}
         style={{
           width: "250px",
@@ -91,6 +138,10 @@ export const Dashboard = () => {
           flexDirection: "column",
           padding: "20px",
           boxShadow: "3px 0 10px rgba(0, 0, 0, 0.2)",
+          position: "fixed",
+          left: isSidebarOpen ? 0 : -250,
+          top: 0,
+          transition: "left 0.3s ease-in-out",
         }}
       >
         {/* Perfil del Usuario */}
@@ -98,17 +149,21 @@ export const Dashboard = () => {
           <Avatar src={userData?.avatar || "https://randomuser.me/api/portraits/men/45.jpg"} sx={{ width: 80, height: 80, mb: 2 }} />
           <Typography variant="h6">{userData?.username || "No Name"}</Typography>
           <Typography variant="body2">{userData?.email || "No Email"}</Typography>
+
+          {/* Botón para Editar Perfil */}
+          <Button
+            startIcon={<EditIcon />}
+            onClick={handleOpenModal}
+            sx={{ color: "white", mt: 2, background: "#ff6a88", ":hover": { background: "#e85c7b" } }}
+          >
+            Edit Profile
+          </Button>
         </Box>
 
-        {/* Separador */}
         <Divider sx={{ backgroundColor: "#444", my: 3 }} />
 
-        {/* Botón para volver al Dashboard 🏠 */}
-        <Button 
-          startIcon={<DashboardIcon />} 
-          onClick={() => navigate("/dashboard")} 
-          sx={{ color: "white", justifyContent: "flex-start", mt: 1, fontWeight: "bold" }}
-        >
+        {/* Botón Back to Dashboard */}
+        <Button startIcon={<DashboardIcon />} onClick={() => navigate("/dashboard")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
           Back to Dashboard
         </Button>
 
@@ -116,24 +171,59 @@ export const Dashboard = () => {
         <Button startIcon={<SearchIcon />} onClick={() => navigate("/dashboard/search")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
           Search Resources
         </Button>
-
         <Button startIcon={<UploadIcon />} onClick={() => navigate("/dashboard/upload")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
           Upload Resources
         </Button>
-
         <Button startIcon={<FavoriteIcon />} onClick={() => navigate("/dashboard/favorites")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
           Favorites
         </Button>
       </motion.div>
+      <Modal open={openModal} onClose={handleCloseModal}>
+        <Box sx={{ width: 400, bgcolor: "white", p: 4, borderRadius: "10px", mx: "auto", mt: "10%" }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>Edit Profile</Typography>
+          <TextField fullWidth label="Username" name="username" value={userData?.username || ""} onChange={handleChange} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Email" name="email" value={userData?.email || ""} onChange={handleChange} sx={{ mb: 2 }} />
+          <Button fullWidth variant="contained" onClick={handleUpdate} sx={{ background: "#ff6a88" }}>
+            Save Changes
+          </Button>
+        </Box>
+      </Modal>
 
-      {/* Contenido Principal Dinámico */}
-      <Box sx={{ flex: 1, padding: "30px", overflowY: "auto" }}>
-        <Routes>
-          <Route path="/" element={<AchievementsSlider />} />
-          <Route path="/search" element={<Search />} />
-          {/* <Route path="/upload" element={<UploadResources />} /> */}
-          <Route path="/favorites" element={<FavoritesList />} />
-        </Routes>
+      {/* Contenido Principal */}
+      <Box sx={{
+        flex: 1,
+        padding: "30px",
+        overflowY: "auto",
+        marginLeft: isSidebarOpen ? "250px" : "0px",
+        transition: "margin-left 0.3s ease-in-out"
+      }}>
+        {loading ? <CircularProgress /> : (
+          <>
+            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#fff" }}>
+              Welcome, {userData?.username || "Loading..."}!
+            </Typography>
+
+            {/* Aquí se definen las rutas dentro del Dashboard */}
+            <Routes>
+              {/* Vista por defecto: Gamificación y Favoritos */}
+              <Route path="/" element={
+                <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
+                  <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
+                  <GamificationHub userId={userId} />
+                  </Box>
+                  <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
+                    <FavoritesList />
+                  </Box>
+                </Box>
+              } />
+
+              {/* Nueva vista de búsqueda dentro del Dashboard */}
+              <Route path="/search" element={<Search />} />
+              <Route path="/upload" element={<UploadFile />} />
+              <Route path="/Favorites" element={<FavoritesList />} />
+            </Routes>
+          </>
+        )}
       </Box>
     </Box>
   );

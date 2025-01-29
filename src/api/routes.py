@@ -2,7 +2,7 @@
 # This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 # """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Documents, Favorites, Task
+from api.models import db, User, Documents, Favorites, Task, Leaderboard
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
@@ -495,3 +495,90 @@ def get_achievements():
     except Exception as e:
         print(f"Error en /achievements: {e}")  # 🔍 Log para ver errores en la terminal
         return jsonify({"error": "Error interno", "message": str(e)}), 500
+    
+# ------------------- USER PROGRESS -------------------
+@api.route("/api/user/<int:user_id>", methods=["GET"])
+def get_user_progress(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify(user.to_dict())
+
+# ------------------- BADGES -------------------
+@api.route("/api/badges/<int:user_id>", methods=["GET"])
+def get_badges(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        print(f"❌ Usuario con ID {user_id} no encontrado en la base de datos.")
+        return jsonify({"error": "User not found"}), 404
+
+    user_badges = UserBadge.query.filter(UserBadge.user_id == user.id).all()
+    if not user_badges:
+        print(f"❌ El usuario con ID {user_id} no tiene insignias asignadas.")
+        return jsonify({"error": "User has no badges"}), 404
+
+    badges_data = [{"id": ub.badge.id, "name": ub.badge.name, "icon": ub.badge.icon} for ub in user_badges]
+    print(f"✅ Insignias del usuario {user.username}: {badges_data}")
+    return jsonify(badges_data)
+
+# ------------------- LEADERBOARD -------------------
+@api.route("/leaderboard", methods=["GET"])
+def get_leaderboard():
+    leaderboard = Leaderboard.query.order_by(Leaderboard.points.desc()).all()
+
+    if not leaderboard:
+        print("❌ No hay datos en el ranking.")
+        return jsonify({"error": "Leaderboard is empty"}), 404
+
+    leaderboard_data = []
+    for entry in leaderboard:
+        user = User.query.get(entry.user_id)
+        if user:
+            leaderboard_data.append({
+                "user_id": entry.user_id,
+                "username": user.username,
+                "points": entry.points
+            })
+    
+    print(f"✅ Datos del leaderboard: {leaderboard_data}")
+    return jsonify(leaderboard_data)
+
+# ------------------- ADD EXPERIENCE -------------------
+@api.route("/user/<int:user_id>/add_xp", methods=["POST"])
+def add_experience(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    data = request.get_json()
+    xp_to_add = data.get("xp", 0)
+
+    user.experience += xp_to_add
+    db.session.commit()
+    
+    return jsonify({"message": f"Added {xp_to_add} XP", "new_experience": user.experience})
+
+# ------------------- ADD BADGE -------------------
+@api.route("/user/<int:user_id>/add_badge/<int:badge_id>", methods=["POST"])
+def add_badge(user_id, badge_id):
+    user = User.query.get(user_id)
+    badge = Badge.query.get(badge_id)
+
+    if not user or not badge:
+        return jsonify({"message": "User or Badge not found"}), 404
+
+    existing = UserBadge.query.filter_by(user_id=user_id, badge_id=badge_id).first()
+    if existing:
+        return jsonify({"message": "Badge already earned"}), 400
+
+    new_badge = UserBadge(user_id=user_id, badge_id=badge_id)
+    db.session.add(new_badge)
+    db.session.commit()
+
+    return jsonify({"message": f"Badge '{badge.name}' added to user {user.username}"})
+
+# ------------------- INIT DATABASE -------------------
+@api.route("/init_db", methods=["POST"])
+def init_db():
+    db.create_all()
+    return jsonify({"message": "Database initialized"})
