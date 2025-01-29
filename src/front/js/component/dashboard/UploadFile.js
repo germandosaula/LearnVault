@@ -23,21 +23,21 @@ export const UploadFile = () => {
       console.error("Error al subir el archivo:", error);
     }
   };
-  const fetchUploadedFiles = async () => {
-    const storageRef = ref(storage, "uploads/");
-    try {
-      const result = await listAll(storageRef);
-      const files = await Promise.all(
-        result.items.map(async (fileRef) => {
-          const url = await getDownloadURL(fileRef);
-          return { name: fileRef.name, url };
-        })
-      );
-      setUploadedFiles(files);
-    } catch (error) {
-      console.error("Error al obtener archivos:", error);
-    }
-  };
+   const fetchUploadedFiles = async () => {
+     const storageRef = ref(storage, "uploads/");
+     try {
+       const result = await listAll(storageRef);
+       const files = await Promise.all(
+         result.items.map(async (fileRef) => {
+           const url = await getDownloadURL(fileRef);
+           return { name: fileRef.name, url };
+         })
+       );
+       setUploadedFiles(files);
+     } catch (error) {
+       console.error("Error al obtener archivos:", error);
+     }
+   };
   return (
     <Box className="container">
         <section className="dashboard-section">

@@ -91,6 +91,7 @@ class Documents(db.Model):
     description = db.Column(db.String(200), nullable=True)
     type = db.Column(db.String(100), nullable=False) 
     subject = db.Column(db.String(100), nullable=False)
+    src_url = db.Column(db.String(500), nullable=True)
     
     favorites = db.relationship('Favorites', back_populates='documents')
     
@@ -100,7 +101,8 @@ class Documents(db.Model):
             'title': self.title,
             'description': self.description,
             'type': self.type,
-            'subject': self.subject
+            'subject': self.subject,
+            'src_url': self.src_url
         }
     
     def __repr__(self):
