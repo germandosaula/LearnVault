@@ -1,9 +1,50 @@
-import React, { useState } from "react";
-import { Container, Grid, Card, CardContent, CardMedia, Typography, Button, Modal, Box, Pagination } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Container, Grid, Card, CardContent, CardMedia, Typography, Button, Modal, Box, Pagination, Tabs, Tab, TextField, Select, MenuItem, InputLabel, FormControl, styled } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import "../../styles/Dashboard/search.css";
+import PropTypes from "prop-types";
+import "../../styles/Dashboard/search.css"
+import { YouTubeSearch } from "../component/youtubeAPI";
+
+function TabPanel(props) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
+
+TabPanel.propTypes = {
+  children: PropTypes.node,
+  index: PropTypes.number.isRequired,
+  value: PropTypes.number.isRequired,
+};
 
 export const Search = () => {
+  useEffect(() => {
+    document.body.style.background = "linear-gradient(45deg, #ff9a8b, #ff6a88, #ff99ac)";
+    document.body.style.backgroundRepeat = "no-repeat";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundAttachment = "fixed";
+    document.body.style.margin = "0";
+    document.body.style.padding = "0";
+
+    return () => {
+      document.body.style.background = "";
+      document.body.style.backgroundRepeat = "";
+      document.body.style.backgroundSize = "";
+      document.body.style.backgroundAttachment = "";
+      document.body.style.margin = "";
+      document.body.style.padding = "";
+    };
+  }, []);
   const [resources] = useState([
     {
       id: 1,
@@ -96,10 +137,40 @@ export const Search = () => {
       pdfUrl: "https://pdfobject.com/pdf/sample.pdf",
     },
   ]);
+  const [filteredResources, setFilteredResources] = useState(resources);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [tabValue, setTabValue] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [selectedResource, setSelectedResource] = useState(null);
   const [page, setPage] = useState(1);
   const resourcesPerPage = 6;
+
+  const categories = ["", "Programación", "Diseño", "Marketing", "Fotografía", "Gestión", "Psicología", "Tecnología"];
+
+  const handleCategoryChange = (event) => {
+    setSelectedCategory(event.target.value);
+    filterResources(event.target.value, searchQuery);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    filterResources(selectedCategory, event.target.value);
+  };
+
+  const filterResources = (category, query) => {
+    const filtered = resources.filter((resource) => {
+      const matchesCategory = category ? resource.category === category : true;
+      const matchesQuery = resource.title.toLowerCase().includes(query.toLowerCase());
+      return matchesCategory && matchesQuery;
+    });
+    setFilteredResources(filtered);
+    setPage(1);
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
 
   const handleOpenModal = (resource) => {
     setSelectedResource(resource);
@@ -117,107 +188,159 @@ export const Search = () => {
 
   const indexOfLastResource = page * resourcesPerPage;
   const indexOfFirstResource = indexOfLastResource - resourcesPerPage;
-  const currentResources = resources.slice(indexOfFirstResource, indexOfLastResource);
+  const currentResources = filteredResources.slice(indexOfFirstResource, indexOfLastResource);
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    height: '80vh',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+    borderRadius: 2,
+    maxHeight: '70vh',
+    overflow: 'hidden',
+  };
 
   return (
-    <Container className="container">
-      <Typography className="main-title" variant="h4" sx={{ fontWeight: "bold", fontFamily: "'Poppins', sans-serif" }} gutterBottom>
-        Resource List
+    <Container sx={{ marginTop: "0px" }}>
+      <Typography
+        variant="h4"
+        sx={{ fontWeight: "bold", fontFamily: "'Poppins', sans-serif", color:"white", display: "flex", justifyContent: "center", alignItems: "center", }}
+        gutterBottom
+      >
+        Resource and Video Search
       </Typography>
-
-      <Grid container spacing={2} className="filter-grid">
-        {currentResources.map((resource) => (
-          <Grid item xs={12} sm={6} md={4} key={resource.id}>
-            <Card className="card" sx={{ borderRadius: "16px",}}>
-              <CardMedia
-                component="img"
-                height="140"
-                image={resource.imageUrl}
-                alt={resource.title}
-              />
-              <CardContent className="card-content">
-                <Typography variant="h6" className="card-title"
-                  sx={{ fontFamily: "'Poppins', sans-serif", fontWeight: "bold",}} style={{ cursor: "pointer", color: "black" }} onClick={() => handleOpenModal(resource)}>
-                  {resource.title}
-                </Typography>
-                <Typography className="card-description" sx={{ fontFamily: "'Poppins', sans-serif", fontWeight: "bold",}}>{resource.description}</Typography>
-                <Typography sx={{ fontFamily: "'Poppins', sans-serif"}}>Category: {resource.category}</Typography>
-                <Typography sx={{ fontFamily: "'Poppins', sans-serif",}}>Date: {new Date(resource.date).toLocaleDateString()}</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      <div className="pagination">
-        <Pagination
-          count={Math.ceil(resources.length / resourcesPerPage)}
-          page={page}
-          onChange={handlePageChange}
-          color="primary"
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Tabs
+        value={tabValue}
+        onChange={handleTabChange}
+        aria-label="Search Tabs"
+        sx={{
+          borderRadius: 2,
+          backgroundColor: "#FFD9CF",
+          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+          padding: "8px",
+        }}
+      >
+        <Tab
+          label="Resources"
+          sx={{
+            color: "black",
+            "&.Mui-selected": {
+              color: "white",
+              backgroundColor: "#81B1CC",
+              borderRadius: 2,
+            },
+          }}
         />
-      </div>
+        <Tab
+          label="YouTube Videos"
+          sx={{
+            color: "black",
+            "&.Mui-selected": {
+              color: "white",
+              backgroundColor: "#81B1CC",
+              borderRadius: 2,
+            },
+          }}
+        />
+      </Tabs>
+      </Box>
+      <TabPanel value={tabValue} index={0}>
+        <Grid container spacing={2} sx={{ marginBottom: 2 }}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Search by title"
+              variant="outlined"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              sx={{ background: "white", borderRadius: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel>Filter by Category</InputLabel>
+              <Select
+                value={selectedCategory}
+                onChange={handleCategoryChange}
+                label="Filter by Category"
+                sx={{ background: "white", borderRadius: 2 }}
+              >
+                {categories.map((category) => (
+                  <MenuItem key={category} value={category}>
+                    {category || "All Categories"}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={2}>
+          {currentResources.map((resource) => (
+            <Grid item xs={12} sm={6} md={4} key={resource.id}>
+              <Card sx={{ borderRadius: "16px" }}>
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={resource.imageUrl}
+                  alt={resource.title}
+                />
+                <CardContent>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: "bold", cursor: "pointer" }}
+                    onClick={() => handleOpenModal(resource)}
+                  >
+                    {resource.title}
+                  </Typography>
+                  <Typography>{resource.description}</Typography>
+                  <Typography>Category: {resource.category}</Typography>
+                  <Typography>Date: {new Date(resource.date).toLocaleDateString()}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+
+        <Box display="flex" justifyContent="center" mt={3}>
+          <Pagination
+            count={Math.ceil(filteredResources.length / resourcesPerPage)}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+          />
+        </Box>
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={1}>
+        <YouTubeSearch />
+      </TabPanel>
 
       {selectedResource && (
-        <Modal
-          open={openModal}
-          onClose={handleCloseModal}
-          sx={{
-            zIndex: 1300,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-          }}
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "80%",
-              height: "80vh",
-              bgcolor: "background.paper",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-              maxHeight: "90vh",
-              overflow: "auto",
-            }}
-          >
-            <Typography variant="h5"  className="centered-title"  sx={{ fontFamily: "'Poppins', sans-serif", fontWeight: "bold",}} gutterBottom>
+        <Modal open={openModal} onClose={handleCloseModal}>
+          <Box sx={{ ...modalStyle }}>
+            <Typography variant="h5" sx={{ fontWeight: "bold", display: "flex", justifyContent: "center", }}>
               {selectedResource.title}
             </Typography>
-
-            <Box
-              sx={{
-                height: "550px",
-                overflow: "auto",
-                border: "1px solid #ddd",
-                borderRadius: 2,
-                marginBottom: 2,
-              }}
-            >
-              <iframe src={selectedResource.pdfUrl} style={{
-                width: "100%",
-                height: "100%",
-                border: "none",
-              }}
-                title="PDF Viewer"></iframe>
-            </Box>
-
-            <Box display="flex" justifyContent="center">
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<FavoriteIcon />}
-                onClick={() => alert("Added to favorites")}
-              >
-                Add to Favorites
-              </Button>
-            </Box>
+            <iframe
+              src={selectedResource.pdfUrl}
+              style={{ width: "100%", height: "60vh", border: "none" }}
+              title="PDF Viewer"
+            ></iframe>
           </Box>
         </Modal>
-      )
-      }
-    </Container >
+      )}
+    </Container>
   );
 };

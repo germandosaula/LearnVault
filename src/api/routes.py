@@ -2,7 +2,7 @@
 # This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 # """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Documents, Favorites, Task
+from api.models import db, User, Documents, Favorites, Task, Leaderboard
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
@@ -10,6 +10,7 @@ import os
 
 
 api = Blueprint('api', __name__)
+CORS(api, resources={r"/*": {"origins": os.getenv("FRONT_URL"), "allow_headers": ["Authorization", "Content-Type"], "supports_credentials": True}})
 
 @api.after_request
 def add_cors_headers(response):
@@ -17,8 +18,6 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE'
     return response
-
-CORS(api)
 
 ## CRUD Users:
 @api.route('/signup', methods=['POST'])
@@ -94,6 +93,18 @@ def handle_get_user(id):
 
     return jsonify(user), 200
 
+@api.route('/user/me', methods=['GET'])
+@jwt_required()
+def get_current_user():
+    current_user_email = get_jwt_identity()
+    print("Authenticated user email:", current_user_email)
+
+    user = User.query.filter_by(email=current_user_email).first()
+
+    if user is None:
+        return jsonify({'msg': 'User not found'}), 404
+
+    return jsonify(user.serialize()), 200
 
 @api.route('/user/<int:id>', methods=['DELETE'])
 @jwt_required()  
@@ -113,33 +124,29 @@ def handle_delete_user(id):
     
     return jsonify({}), 204
 
-    
-
 @api.route('/user/<int:id>', methods=['PUT'])
 @jwt_required() 
 def handle_update_user(id):
-    
     current_user = get_jwt_identity()
-    
+
     user = User.query.get(id)
-    
+
     if user is None:
         return jsonify({'msg': 'User not found'}), 404
-    if user.username != current_user and not current_user == "admin":
-        return jsonify({'msg': 'Permission denied'}), 403 
+
+    if user.id != int(current_user) and current_user != "admin":
+        return jsonify({'msg': 'Permission denied'}), 403
 
     body = request.get_json()
-    
+
     if "username" in body:
         user.username = body["username"]
     if "email" in body:
         user.email = body["email"]
-    
+
     db.session.commit()
-    
+
     return jsonify(user.serialize()), 200
-
-
 
 @api.route('/dashboard', methods=['GET'])
 @jwt_required()
@@ -177,21 +184,22 @@ def handle_search():
 
 @api.route('/login', methods=['POST'])
 def login_user():
-
     body = request.get_json()
-    
-    if body is None or "email" not in body or "password" not in body:
-        return jsonify({'msg': 'Faltan credenciales'}), 400
-    
-    email = request.get_json()['email']
-    password = request.get_json()['password']
 
-    user = User.query.filter_by(email=email, password=password).first()
-    
-    if user is None or not user.password == password: 
+    if not body or "email" not in body or "password" not in body:
+        return jsonify({'msg': 'Faltan credenciales'}), 400
+
+    email = body["email"]
+    password = body["password"]
+
+    user = User.query.filter_by(email=email, password=password).first()  # Comparación directa
+
+    if user is None: 
         return jsonify({'msg': 'Credenciales inválidas'}), 401
-    
-    token = create_access_token(identity=user.email)
+
+    # Convertir user.id a string antes de generar el token
+    token = create_access_token(identity=str(user.id))
+
     return jsonify({'msg': 'Inicio de sesión exitoso', 'token': token}), 200
 
 ## CRUD Documents:
@@ -313,19 +321,24 @@ def create_favorite():
 @api.route('/favorites', methods=['GET'])
 @jwt_required()
 def get_favorites():
+    try:
+        current_user_id = get_jwt_identity()
+        favorites = Favorites.query.filter_by(user_id=current_user_id).all()
 
-    current_user_id = get_jwt_identity()
-    
-    favorites = Favorites.query.filter_by(user_id=current_user_id).all()
+        if not favorites:
+            return jsonify({"message": "No hay favoritos"}), 200
 
-    result = [{
-        "id": fav.id,
-        "document_id": fav.documents.id,
-        "document_title": fav.documents.title,
-        "document_type": fav.documents.type
-    } for fav in favorites]
+        result = [{
+            "id": fav.id,
+            "document_id": fav.documents.id,
+            "document_title": fav.documents.title,
+            "document_type": fav.documents.type
+        } for fav in favorites]
 
-    return jsonify(result), 200
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({"error": "Error interno", "message": str(e)}), 500
 
 
 @api.route('/favorites/<int:id>', methods=['DELETE'])
@@ -469,3 +482,108 @@ def handle_delete_task(id):
 
     return jsonify({'msg': 'Task deleted successfully'}), 200
 
+@api.route('/achievements', methods=['GET'])
+@jwt_required()
+def get_achievements():
+    try:
+        current_user_id = get_jwt_identity()
+
+        # Simulación de días consecutivos (Esto debería ser obtenido de la base de datos)
+        user = User.query.get(current_user_id)
+        days_logged = user.consecutive_days if user else 0
+
+        # Lista de logros desbloqueados
+        unlocked = [ach for ach in [3, 5, 10, 15, 30] if days_logged >= ach]
+
+        return jsonify(unlocked), 200  # 🔹 Devuelve JSON correctamente
+
+    except Exception as e:
+        print(f"Error en /achievements: {e}")  # 🔍 Log para ver errores en la terminal
+        return jsonify({"error": "Error interno", "message": str(e)}), 500
+    
+# ------------------- USER PROGRESS -------------------
+@api.route("/api/user/<int:user_id>", methods=["GET"])
+def get_user_progress(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    return jsonify(user.to_dict())
+
+# ------------------- BADGES -------------------
+@api.route("/api/badges/<int:user_id>", methods=["GET"])
+def get_badges(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        print(f"❌ Usuario con ID {user_id} no encontrado en la base de datos.")
+        return jsonify({"error": "User not found"}), 404
+
+    user_badges = UserBadge.query.filter(UserBadge.user_id == user.id).all()
+    if not user_badges:
+        print(f"❌ El usuario con ID {user_id} no tiene insignias asignadas.")
+        return jsonify({"error": "User has no badges"}), 404
+
+    badges_data = [{"id": ub.badge.id, "name": ub.badge.name, "icon": ub.badge.icon} for ub in user_badges]
+    print(f"✅ Insignias del usuario {user.username}: {badges_data}")
+    return jsonify(badges_data)
+
+# ------------------- LEADERBOARD -------------------
+@api.route("/leaderboard", methods=["GET"])
+def get_leaderboard():
+    leaderboard = Leaderboard.query.order_by(Leaderboard.points.desc()).all()
+
+    if not leaderboard:
+        print("❌ No hay datos en el ranking.")
+        return jsonify({"error": "Leaderboard is empty"}), 404
+
+    leaderboard_data = []
+    for entry in leaderboard:
+        user = User.query.get(entry.user_id)
+        if user:
+            leaderboard_data.append({
+                "user_id": entry.user_id,
+                "username": user.username,
+                "points": entry.points
+            })
+    
+    print(f"✅ Datos del leaderboard: {leaderboard_data}")
+    return jsonify(leaderboard_data)
+
+# ------------------- ADD EXPERIENCE -------------------
+@api.route("/user/<int:user_id>/add_xp", methods=["POST"])
+def add_experience(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    data = request.get_json()
+    xp_to_add = data.get("xp", 0)
+
+    user.experience += xp_to_add
+    db.session.commit()
+    
+    return jsonify({"message": f"Added {xp_to_add} XP", "new_experience": user.experience})
+
+# ------------------- ADD BADGE -------------------
+@api.route("/user/<int:user_id>/add_badge/<int:badge_id>", methods=["POST"])
+def add_badge(user_id, badge_id):
+    user = User.query.get(user_id)
+    badge = Badge.query.get(badge_id)
+
+    if not user or not badge:
+        return jsonify({"message": "User or Badge not found"}), 404
+
+    existing = UserBadge.query.filter_by(user_id=user_id, badge_id=badge_id).first()
+    if existing:
+        return jsonify({"message": "Badge already earned"}), 400
+
+    new_badge = UserBadge(user_id=user_id, badge_id=badge_id)
+    db.session.add(new_badge)
+    db.session.commit()
+
+    return jsonify({"message": f"Badge '{badge.name}' added to user {user.username}"})
+
+# ------------------- INIT DATABASE -------------------
+@api.route("/init_db", methods=["POST"])
+def init_db():
+    db.create_all()
+    return jsonify({"message": "Database initialized"})
