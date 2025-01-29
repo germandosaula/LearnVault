@@ -205,7 +205,7 @@ export const Search = () => {
   };
 
   return (
-    <Container sx={{ marginTop: "168px" }}>
+    <Container sx={{ marginTop: "0px" }}>
       <Typography
         variant="h4"
         sx={{ fontWeight: "bold", fontFamily: "'Poppins', sans-serif", color:"white", display: "flex", justifyContent: "center", alignItems: "center", }}

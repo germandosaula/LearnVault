@@ -14,35 +14,35 @@ const features = [
     description:
       "Experience engaging tutorials, videos, and hands-on projects to elevate your skills.",
     image: FeaturesResource,
-    gradient: "linear-gradient(to right, #FFC3A0, #FFECB3)",
+    gradient: "linear-gradient(to right, #ff9a8b, #ff6a88)",
   },
   {
     title: "Personalized Resources",
     description:
       "Tailor your learning journey with resources that match your goals and preferences.",
     image: FeaturesClass,
-    gradient: "linear-gradient(to right, #FFECB3, #B5EAD7)",
+    gradient: "linear-gradient(to right, #ff6a88, #ff99ac)",
   },
   {
     title: "Community Collaboration",
     description:
       "Connect with peers, share insights, and build together in a thriving community.",
     image: FeaturesDegree,
-    gradient: "linear-gradient(to right, #B5EAD7, #C9C9F5)",
+    gradient: "linear-gradient(to right, #ff99ac, #ff9a8b)",
   },
   {
     title: "Gamification",
     description:
       "Learn and have fun with badges, leaderboards, and rewards for your progress.",
     image: FeaturesGamification,
-    gradient: "linear-gradient(to right, #C9C9F5, #FFCCF9)",
+    gradient: "linear-gradient(to right, #ff9a8b, #ff99ac)",
   },
   {
     title: "Advanced Planning Tools",
     description:
       "Stay on track with calendars, progress tracking, and goal-setting features.",
     image: FeaturesTalent,
-    gradient: "linear-gradient(to right, #FFCCF9, #FFC3A0)",
+    gradient: "linear-gradient(to right, #ff99ac, #ff6a88)",
   },
 ];
 

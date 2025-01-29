@@ -10,6 +10,7 @@ import os
 
 
 api = Blueprint('api', __name__)
+CORS(api, resources={r"/*": {"origins": os.getenv("FRONT_URL"), "allow_headers": ["Authorization", "Content-Type"], "supports_credentials": True}})
 
 @api.after_request
 def add_cors_headers(response):
@@ -17,8 +18,6 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE'
     return response
-
-CORS(api)
 
 ## CRUD Users:
 @api.route('/signup', methods=['POST'])
@@ -317,19 +316,24 @@ def create_favorite():
 @api.route('/favorites', methods=['GET'])
 @jwt_required()
 def get_favorites():
+    try:
+        current_user_id = get_jwt_identity()
+        favorites = Favorites.query.filter_by(user_id=current_user_id).all()
 
-    current_user_id = get_jwt_identity()
-    
-    favorites = Favorites.query.filter_by(user_id=current_user_id).all()
+        if not favorites:
+            return jsonify({"message": "No hay favoritos"}), 200
 
-    result = [{
-        "id": fav.id,
-        "document_id": fav.documents.id,
-        "document_title": fav.documents.title,
-        "document_type": fav.documents.type
-    } for fav in favorites]
+        result = [{
+            "id": fav.id,
+            "document_id": fav.documents.id,
+            "document_title": fav.documents.title,
+            "document_type": fav.documents.type
+        } for fav in favorites]
 
-    return jsonify(result), 200
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({"error": "Error interno", "message": str(e)}), 500
 
 
 @api.route('/favorites/<int:id>', methods=['DELETE'])
@@ -473,3 +477,21 @@ def handle_delete_task(id):
 
     return jsonify({'msg': 'Task deleted successfully'}), 200
 
+@api.route('/achievements', methods=['GET'])
+@jwt_required()
+def get_achievements():
+    try:
+        current_user_id = get_jwt_identity()
+
+        # Simulación de días consecutivos (Esto debería ser obtenido de la base de datos)
+        user = User.query.get(current_user_id)
+        days_logged = user.consecutive_days if user else 0
+
+        # Lista de logros desbloqueados
+        unlocked = [ach for ach in [3, 5, 10, 15, 30] if days_logged >= ach]
+
+        return jsonify(unlocked), 200  # 🔹 Devuelve JSON correctamente
+
+    except Exception as e:
+        print(f"Error en /achievements: {e}")  # 🔍 Log para ver errores en la terminal
+        return jsonify({"error": "Error interno", "message": str(e)}), 500

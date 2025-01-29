@@ -1,26 +1,27 @@
 import React, { useState, useContext, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Avatar,
-  Button,
-  Modal,
-  TextField,
-  IconButton,
-  CircularProgress,
+import { 
+  Box, Typography, Avatar, Button, Modal, TextField, 
+  IconButton, CircularProgress, Divider 
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { Context } from "../store/appContext";
+import { useNavigate, Routes, Route } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
-import { useNavigate } from "react-router-dom";
+import SearchIcon from "@mui/icons-material/Search";
+import UploadIcon from "@mui/icons-material/Upload";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import DashboardIcon from "@mui/icons-material/Dashboard"; // 🏠 Icono de Dashboard
+import { Search } from "../pages/Search";
+// import { UploadResources } from "../component/dashboard/UploadResources";
+import { FavoritesList } from "../component/dashboard/FavoritesList";
+import { AchievementsSlider } from "../component/dashboard/ArchivementsSlider";
 
 export const Dashboard = () => {
   const { store, actions } = useContext(Context);
   const navigate = useNavigate();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [openModal, setOpenModal] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -34,22 +35,14 @@ export const Dashboard = () => {
 
     const fetchUserData = async () => {
       try {
-        console.log("Fetching user data for ID:", store.user.id);
-
         const response = await fetch(`${process.env.BACKEND_URL}/api/user/${store.user.id}`, {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${store.token}`,
-          },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${store.token}` },
         });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch user data");
-        }
+        if (!response.ok) throw new Error("Failed to fetch user data");
 
         const data = await response.json();
-        console.log("User data received:", data);
         setUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -63,66 +56,9 @@ export const Dashboard = () => {
   }, [store.token, store.user?.id, navigate]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  const handleOpenModal = () => setOpenModal(true);
-  const handleCloseModal = () => setOpenModal(false);
-
-  const handleChange = (e) => {
-    setUserData({ ...userData, [e.target.name]: e.target.value });
-  };
-
-  const handleUpdate = async () => {
-    if (!userData?.username || !userData?.email) {
-      console.error("🚨 Username or email is missing.");
-      return;
-    }
-
-    // Asegurarse de que se envían strings correctamente formateados
-    const updatedData = {
-      username: String(userData.username).trim(),
-      email: String(userData.email).trim(),
-    };
-
-    console.log("📩 Sending updated user data:", updatedData); // Verificar qué se envía
-
-    try {
-      const response = await fetch(
-        `${process.env.BACKEND_URL}/api/user/${store.user.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${store.token}`,
-          },
-          body: JSON.stringify(updatedData), // Convertir correctamente a JSON
-        }
-      );
-
-      const result = await response.json();
-      console.log("🔍 Server Response:", result); // Ver qué responde el servidor
-
-      if (!response.ok) {
-        console.error("❌ Failed to update user data:", result);
-        return;
-      }
-
-      setUserData(result); // Guardar los datos actualizados
-      handleCloseModal();
-    } catch (error) {
-      console.error("🔥 Error updating user data:", error);
-    }
-  };
-
-
-  console.log("Current userData state:", userData);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        height: "100vh",
-        background: "linear-gradient(45deg, #ff9a8b, #ff6a88, #ff99ac)",
-      }}
-    >
+    <Box sx={{ display: "flex", height: "100vh", background: "linear-gradient(45deg, #ff9a8b, #ff6a88, #ff99ac)" }}>
       {/* Botón para abrir/cerrar Sidebar */}
       <IconButton
         onClick={toggleSidebar}
@@ -141,7 +77,7 @@ export const Dashboard = () => {
         {isSidebarOpen ? <CloseIcon /> : <MenuIcon />}
       </IconButton>
 
-      {/* Sidebar con animación */}
+      {/* Sidebar */}
       <motion.div
         initial={{ x: -250 }}
         animate={{ x: isSidebarOpen ? 0 : -250 }}
@@ -157,85 +93,48 @@ export const Dashboard = () => {
           boxShadow: "3px 0 10px rgba(0, 0, 0, 0.2)",
         }}
       >
-        {/* Perfil */}
+        {/* Perfil del Usuario */}
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 4 }}>
-          {loading ? (
-            <CircularProgress color="inherit" />
-          ) : error ? (
-            <Typography variant="body1" color="error">
-              Failed to load profile.
-            </Typography>
-          ) : (
-            <>
-              <Avatar
-                src={userData?.avatar || "https://randomuser.me/api/portraits/men/45.jpg"}
-                sx={{ width: 80, height: 80, mb: 2 }}
-              />
-              <Typography variant="h6">{userData?.username || "No Name"}</Typography>
-              <Typography variant="body2">{userData?.email || "No Email"}</Typography>
-              <Button variant="outlined" sx={{ mt: 2, color: "white" }} onClick={handleOpenModal}>
-                Edit Profile
-              </Button>
-            </>
-          )}
+          <Avatar src={userData?.avatar || "https://randomuser.me/api/portraits/men/45.jpg"} sx={{ width: 80, height: 80, mb: 2 }} />
+          <Typography variant="h6">{userData?.username || "No Name"}</Typography>
+          <Typography variant="body2">{userData?.email || "No Email"}</Typography>
         </Box>
+
+        {/* Separador */}
+        <Divider sx={{ backgroundColor: "#444", my: 3 }} />
+
+        {/* Botón para volver al Dashboard 🏠 */}
+        <Button 
+          startIcon={<DashboardIcon />} 
+          onClick={() => navigate("/dashboard")} 
+          sx={{ color: "white", justifyContent: "flex-start", mt: 1, fontWeight: "bold" }}
+        >
+          Back to Dashboard
+        </Button>
+
+        {/* Botones de Navegación */}
+        <Button startIcon={<SearchIcon />} onClick={() => navigate("/dashboard/search")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
+          Search Resources
+        </Button>
+
+        <Button startIcon={<UploadIcon />} onClick={() => navigate("/dashboard/upload")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
+          Upload Resources
+        </Button>
+
+        <Button startIcon={<FavoriteIcon />} onClick={() => navigate("/dashboard/favorites")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
+          Favorites
+        </Button>
       </motion.div>
 
-      {/* Contenido del Dashboard */}
+      {/* Contenido Principal Dinámico */}
       <Box sx={{ flex: 1, padding: "30px", overflowY: "auto" }}>
-        {loading ? (
-          <CircularProgress />
-        ) : error ? (
-          <Typography variant="body1" color="error">
-            Could not load dashboard content.
-          </Typography>
-        ) : (
-          <>
-            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#fff" }}>
-              Welcome, {userData?.username || "Loading..."}!
-            </Typography>
-
-            {/* Tarjetas */}
-            <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
-              <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
-                <Typography variant="h5">🎮 Gamification</Typography>
-                <Typography variant="body2">
-                  Level up by completing tasks and earning points!
-                </Typography>
-              </Box>
-
-              <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
-                <Typography variant="h5">🏆 Achievements</Typography>
-                <Typography variant="body2">
-                  Unlock achievements as you progress in learning!
-                </Typography>
-              </Box>
-            </Box>
-          </>
-        )}
+        <Routes>
+          <Route path="/" element={<AchievementsSlider />} />
+          <Route path="/search" element={<Search />} />
+          {/* <Route path="/upload" element={<UploadResources />} /> */}
+          <Route path="/favorites" element={<FavoritesList />} />
+        </Routes>
       </Box>
-
-      {/* Modal para editar perfil */}
-      <Modal open={openModal} onClose={handleCloseModal}>
-        <Box
-          sx={{
-            width: 400,
-            bgcolor: "white",
-            p: 4,
-            borderRadius: "10px",
-            boxShadow: 24,
-            mx: "auto",
-            mt: "10%",
-          }}
-        >
-          <Typography variant="h6" sx={{ mb: 2 }}>Edit Profile</Typography>
-          <TextField fullWidth label="Username" name="username" value={userData?.username || ""} onChange={handleChange} sx={{ mb: 2 }} />
-          <TextField fullWidth label="Email" name="email" value={userData?.email || ""} onChange={handleChange} sx={{ mb: 2 }} />
-          <Button fullWidth variant="contained" onClick={handleUpdate} sx={{ background: "#ff6a88" }}>
-            Save Changes
-          </Button>
-        </Box>
-      </Modal>
     </Box>
   );
 };

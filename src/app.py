@@ -65,15 +65,25 @@ def sitemap():
     return send_from_directory(static_file_dir, 'index.html')
 
 # any other endpoint will try to serve it like a static file
-@app.route('/<path:path>', methods=['GET'])
-def serve_any_other_file(path):
-    if not os.path.isfile(os.path.join(static_file_dir, path)):
-        path = 'index.html'
-    response = send_from_directory(static_file_dir, path)
-    response.cache_control.max_age = 0  # avoid cache memory
-    return response
+# @app.route('/<path:path>', methods=['GET'])
+# def serve_any_other_file(path):
+#     if not os.path.isfile(os.path.join(static_file_dir, path)):
+#         path = 'index.html'
+#     response = send_from_directory(static_file_dir, path)
+#     response.cache_control.max_age = 0  # avoid cache memory
+#     return response
 
+@app.errorhandler(404)
+def not_found_error(error):
+    return jsonify({"error": "Ruta no encontrada"}), 404
 
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({"error": "Error interno del servidor"}), 500
+
+@app.errorhandler(401)
+def unauthorized_error(error):
+    return jsonify({"error": "No autorizado"}), 401
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
