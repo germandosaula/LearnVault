@@ -2,7 +2,7 @@
 # This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 # """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Documents, Favorites, Task, Leaderboard
+from api.models import db, User, Documents, Favorites, Task, Leaderboard, UserBadge
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
@@ -199,49 +199,48 @@ def login_user():
 
     # Convertir user.id a string antes de generar el token
     token = create_access_token(identity=str(user.id))
+    user_data = {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username
+        }
 
-    return jsonify({'msg': 'Inicio de sesión exitoso', 'token': token}), 200
+    return jsonify({
+            "msg": "Inicio de sesión exitoso",
+            "token": token,
+            "user": user_data  # 🔥 **Asegura que esto se devuelva**
+        }), 200
 
 ## CRUD Documents:
 @api.route('/documents', methods=['POST'])
-def handle_create_document():
-    
-    body = request.get_json()
+def upload_document():
+    data = request.get_json()
 
-    if body is None:
-        return jsonify({'msg': 'Error'}), 400
-    if "title" not in body:
-        return jsonify({'msg': 'Title is required'}), 400
-    if "description" not in body:
-        return jsonify({'msg': 'Description is required'}), 400
-    if "type" not in body:
-        return jsonify({'msg': 'Type is required'}), 400
-    if "subject" not in body:
-        return jsonify({'msg': 'Subject is required'}), 400
-    if "src_url" not in body:
-        return jsonify({'msg': 'Url is required'}), 400
+    if not data.get("title") or not data.get("src_url"):
+        return jsonify({"error": "El título y la URL del archivo son obligatorios"}), 400
 
-    document = Documents(
-        title=body["title"],
-        description=body["description"],
-        type=body["type"],
-        subject=body["subject"],
-        src_url=body["src_url"]   
+    image_url = data.get("image_url") if data.get("image_url") else "https://e00-elmundo.uecdn.es/assets/multimedia/imagenes/2021/12/22/16401922123443.jpg"
+
+    new_document = Documents(
+        title=data["title"],
+        description=data.get("description", ""),
+        type=data["type"],
+        subject=data["subject"],
+        src_url=data["src_url"],
+        image_url=image_url,
+        uploaded_by=data.get("uploaded_by", "Unknown")
     )
-    
-    db.session.add(document)
+
+    db.session.add(new_document)
     db.session.commit()
 
-    return jsonify(document.serialize()), 201
+    return jsonify({"message": "Documento guardado correctamente", "document": new_document.serialize()}), 201
 
 
 @api.route('/documents', methods=['GET'])
-def handle_get_documents():
-    
-    all_documents = Documents.query.all()
-    all_documents = list(map(lambda x: x.serialize(), all_documents))
-
-    return jsonify(all_documents), 200
+def get_documents():
+    documents = Documents.query.all()
+    return jsonify([doc.serialize() for doc in documents]), 200
 
 
 @api.route('/document/<int:id>', methods=['GET'])
@@ -502,7 +501,7 @@ def get_achievements():
         return jsonify({"error": "Error interno", "message": str(e)}), 500
     
 # ------------------- USER PROGRESS -------------------
-@api.route("/api/user/<int:user_id>", methods=["GET"])
+@api.route("/user/<int:user_id>", methods=["GET"])
 def get_user_progress(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -510,7 +509,7 @@ def get_user_progress(user_id):
     return jsonify(user.to_dict())
 
 # ------------------- BADGES -------------------
-@api.route("/api/badges/<int:user_id>", methods=["GET"])
+@api.route("/badges/<int:user_id>", methods=["GET"])
 def get_badges(user_id):
     user = User.query.get(user_id)
     if not user:
@@ -581,6 +580,50 @@ def add_badge(user_id, badge_id):
     db.session.commit()
 
     return jsonify({"message": f"Badge '{badge.name}' added to user {user.username}"})
+
+# -------------------- GAMIFICACIÖN -------------------------
+@api.route("/user/<int:user_id>/complete_action", methods=["POST"])
+def complete_action(user_id):
+    data = request.get_json()
+    action = data.get("action")
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    xp_gained = 0
+    badge_unlocked = None
+
+    # 🔥 Asignación de XP basada en la acción
+    action_rewards = {
+        "upload_file": 50,
+        "download_file": 20,
+        "comment": 10,
+        "streak_bonus": 30
+    }
+
+    xp_gained = action_rewards.get(action, 0)
+    user.experience += xp_gained
+
+    # 🔥 Desbloqueo de insignias
+    if action == "upload_file" and not UserBadge.query.filter_by(user_id=user.id, badge_id=1).first():
+        badge_unlocked = Badge.query.get(1)  # Primera contribución
+        new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
+        db.session.add(new_badge)
+
+    if action == "download_file" and user.download_count >= 10:
+        badge_unlocked = Badge.query.get(2)  # Explorador
+        new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
+        db.session.add(new_badge)
+
+    db.session.commit()
+
+    response = {"xp_gained": xp_gained, "new_experience": user.experience}
+    if badge_unlocked:
+        response["badge_unlocked"] = badge_unlocked.name
+
+    return jsonify(response), 200
+
 
 # ------------------- INIT DATABASE -------------------
 @api.route("/init_db", methods=["POST"])
