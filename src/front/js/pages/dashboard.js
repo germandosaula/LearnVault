@@ -24,6 +24,8 @@ export const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false); // ✅ Estado del modal
   const userId = localStorage.getItem("userId");
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
 
   useEffect(() => {
     if (!store.token || !store.user?.id) {
@@ -96,8 +98,36 @@ export const Dashboard = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", height: "100vh", background: "linear-gradient(45deg, #ff9a8b, #ff6a88, #ff99ac)" }}>
-      
+    <Box
+      sx={{
+        display: "flex",
+        height: "100vh",
+        position: "relative",
+        width: "100%",
+        overflow: "hidden",
+        alignItems: "center",
+        justifyContent: "center",
+
+        "::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          background: "linear-gradient(45deg, #ff9a8b, #ff6a88, #ff99ac, #ffb199, #ffc3a0)",
+          backgroundSize: "400% 400%",
+          animation: "gradientAnimation 10s ease infinite",
+          zIndex: -1,
+        },
+
+        "@keyframes gradientAnimation": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" }
+        }
+      }}
+    >
       {/* Botón para abrir/cerrar Sidebar */}
       <IconButton
         onClick={toggleSidebar}
@@ -181,7 +211,11 @@ export const Dashboard = () => {
           }}
           sx={{
             color: "white",
-            justifyContent: "flex-start",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            fontWeight: "bold",
+            display: "flex",
             mt: "auto",
             background: "#ff6a88",
             ":hover": { background: "#e85c7b" },
@@ -230,13 +264,25 @@ export const Dashboard = () => {
       </Modal>
 
       {/* Contenido Principal */}
-      <Box sx={{
-        flex: 1,
-        padding: "30px",
-        overflowY: "auto",
-        marginLeft: isSidebarOpen ? "250px" : "0px",
-        transition: "margin-left 0.3s ease-in-out"
-      }}>
+      <Box
+        sx={{
+          flex: 1,
+          padding: "30px",
+          overflowY: "auto",
+          marginLeft: isSidebarOpen ? "250px" : "0px",
+          transition: "margin-left 0.3s ease-in-out"
+        }}
+      >
+        <Typography sx={{
+          marginLeft: 5,
+          fontFamily: "'Poppins', sans-serif",
+          fontSize: "2em",
+          fontWeight: 900,
+          color: "white",
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)"
+        }}>
+          Welcome {user?.username || localUser?.username || "User"}
+        </Typography>
         <Outlet />
       </Box>
     </Box>
