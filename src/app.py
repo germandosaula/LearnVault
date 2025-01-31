@@ -96,7 +96,7 @@ def init_db_data():
         print(entry.to_dict())
 # Ejecutar la inicialización de la base de datos
 with app.app_context():
-    init_db_data()
+     init_db_data()
 
 # -------------------- 📌 Configuración de la API --------------------
 
