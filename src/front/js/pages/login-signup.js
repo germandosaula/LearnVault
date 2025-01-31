@@ -103,8 +103,8 @@ export const LoginSignUp = () => {
   };
 
   return (
-    <Box className="new-login">
-      <div className={`container ${isActive ? "active" : ""}`} id="container">
+    <Box className="new-login" >
+      <div className={`container ${isActive ? "active" : ""}`} id="container" >
         <div className="form-container sign-up">
           <form onSubmit={handleSubmit}>
             <Typography
