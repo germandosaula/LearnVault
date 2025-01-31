@@ -5,7 +5,7 @@ import {
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { Context } from "../store/appContext";
-import { useNavigate, Routes, Route } from "react-router-dom";
+import { useNavigate, Outlet } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
@@ -13,10 +13,7 @@ import UploadIcon from "@mui/icons-material/Upload";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import EditIcon from "@mui/icons-material/Edit";
-import { Search } from "../pages/Search";
-import { FavoritesList } from "../component/dashboard/FavoritesList";
-import { GamificationHub } from "../component/dashboard/GamificationHub";
-import { UploadFile } from "../component/dashboard/UploadFile"
+import LogoutIcon from "@mui/icons-material/Logout";
 
 export const Dashboard = () => {
   const { store, actions } = useContext(Context);
@@ -25,9 +22,10 @@ export const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState(false); // ✅ Estado del modal
   const userId = localStorage.getItem("userId");
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
 
   useEffect(() => {
     if (!store.token || !store.user?.id) {
@@ -49,7 +47,6 @@ export const Dashboard = () => {
         setUserData(data);
       } catch (error) {
         console.error("Error fetching user data:", error);
-        setError(true);
       } finally {
         setLoading(false);
       }
@@ -59,7 +56,9 @@ export const Dashboard = () => {
   }, [store.token, store.user?.id, navigate]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  const handleOpenModal = () => setOpenModal(true);
+  const handleOpenModal = () => {
+    if (userData) setOpenModal(true); // ✅ Solo abrir modal si `userData` está disponible
+  };
   const handleCloseModal = () => setOpenModal(false);
 
   const handleChange = (e) => {
@@ -72,23 +71,18 @@ export const Dashboard = () => {
       return;
     }
 
-    const updatedData = {
-      username: String(userData.username).trim(),
-      email: String(userData.email).trim(),
-    };
-
     try {
-      const response = await fetch(
-        `${process.env.BACKEND_URL}/api/user/${store.user.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${store.token}`,
-          },
-          body: JSON.stringify(updatedData),
-        }
-      );
+      const response = await fetch(`${process.env.BACKEND_URL}/api/user/${store.user.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${store.token}`,
+        },
+        body: JSON.stringify({
+          username: userData.username.trim(),
+          email: userData.email.trim(),
+        }),
+      });
 
       const result = await response.json();
       if (!response.ok) {
@@ -104,7 +98,36 @@ export const Dashboard = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", height: "100vh", background: "linear-gradient(45deg, #ff9a8b, #ff6a88, #ff99ac)" }}>
+    <Box
+      sx={{
+        display: "flex",
+        height: "100vh",
+        position: "relative",
+        width: "100%",
+        overflow: "hidden",
+        alignItems: "center",
+        justifyContent: "center",
+
+        "::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          background: "linear-gradient(45deg, #ff9a8b, #ff6a88, #ff99ac, #ffb199, #ffc3a0)",
+          backgroundSize: "400% 400%",
+          animation: "gradientAnimation 10s ease infinite",
+          zIndex: -1,
+        },
+
+        "@keyframes gradientAnimation": {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" }
+        }
+      }}
+    >
       {/* Botón para abrir/cerrar Sidebar */}
       <IconButton
         onClick={toggleSidebar}
@@ -159,15 +182,12 @@ export const Dashboard = () => {
             Edit Profile
           </Button>
         </Box>
-
         <Divider sx={{ backgroundColor: "#444", my: 3 }} />
 
-        {/* Botón Back to Dashboard */}
-        <Button startIcon={<DashboardIcon />} onClick={() => navigate("/dashboard")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
-          Back to Dashboard
-        </Button>
-
         {/* Botones de Navegación */}
+        <Button startIcon={<DashboardIcon />} onClick={() => navigate("/dashboard")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
+          Dashboard
+        </Button>
         <Button startIcon={<SearchIcon />} onClick={() => navigate("/dashboard/search")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
           Search Resources
         </Button>
@@ -177,12 +197,66 @@ export const Dashboard = () => {
         <Button startIcon={<FavoriteIcon />} onClick={() => navigate("/dashboard/favorites")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
           Favorites
         </Button>
+
+        <Divider sx={{ backgroundColor: "#444", my: 3 }} />
+
+        {/* Botón de Logout */}
+        <Button
+          startIcon={<LogoutIcon />}
+          onClick={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            actions.logout?.();
+            navigate("/login");
+          }}
+          sx={{
+            color: "white",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            fontWeight: "bold",
+            display: "flex",
+            mt: "auto",
+            background: "#ff6a88",
+            ":hover": { background: "#e85c7b" },
+            position: "absolute",
+            bottom: 20,
+            left: 20,
+            width: "calc(100% - 40px)",
+          }}
+        >
+          Logout
+        </Button>
       </motion.div>
+
+      {/* ✅ Modal Restaurado y Funcional */}
       <Modal open={openModal} onClose={handleCloseModal}>
-        <Box sx={{ width: 400, bgcolor: "white", p: 4, borderRadius: "10px", mx: "auto", mt: "10%" }}>
+        <Box sx={{
+          width: 400,
+          bgcolor: "white",
+          p: 4,
+          borderRadius: "10px",
+          mx: "auto",
+          mt: "10%",
+          boxShadow: 24
+        }}>
           <Typography variant="h6" sx={{ mb: 2 }}>Edit Profile</Typography>
-          <TextField fullWidth label="Username" name="username" value={userData?.username || ""} onChange={handleChange} sx={{ mb: 2 }} />
-          <TextField fullWidth label="Email" name="email" value={userData?.email || ""} onChange={handleChange} sx={{ mb: 2 }} />
+          <TextField
+            fullWidth
+            label="Username"
+            name="username"
+            value={userData?.username || ""}
+            onChange={handleChange}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Email"
+            name="email"
+            value={userData?.email || ""}
+            onChange={handleChange}
+            sx={{ mb: 2 }}
+          />
           <Button fullWidth variant="contained" onClick={handleUpdate} sx={{ background: "#ff6a88" }}>
             Save Changes
           </Button>
@@ -190,40 +264,26 @@ export const Dashboard = () => {
       </Modal>
 
       {/* Contenido Principal */}
-      <Box sx={{
-        flex: 1,
-        padding: "30px",
-        overflowY: "auto",
-        marginLeft: isSidebarOpen ? "250px" : "0px",
-        transition: "margin-left 0.3s ease-in-out"
-      }}>
-        {loading ? <CircularProgress /> : (
-          <>
-            <Typography variant="h4" sx={{ fontWeight: "bold", color: "#fff" }}>
-              Welcome, {userData?.username || "Loading..."}!
-            </Typography>
-
-            {/* Aquí se definen las rutas dentro del Dashboard */}
-            <Routes>
-              {/* Vista por defecto: Gamificación y Favoritos */}
-              <Route path="/" element={
-                <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
-                  <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
-                  <GamificationHub userId={userId} />
-                  </Box>
-                  <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
-                    <FavoritesList />
-                  </Box>
-                </Box>
-              } />
-
-              {/* Nueva vista de búsqueda dentro del Dashboard */}
-              <Route path="/search" element={<Search />} />
-              <Route path="/upload" element={<UploadFile />} />
-              <Route path="/Favorites" element={<FavoritesList />} />
-            </Routes>
-          </>
-        )}
+      <Box
+        sx={{
+          flex: 1,
+          padding: "30px",
+          overflowY: "auto",
+          marginLeft: isSidebarOpen ? "250px" : "0px",
+          transition: "margin-left 0.3s ease-in-out"
+        }}
+      >
+        <Typography sx={{
+          marginLeft: 5,
+          fontFamily: "'Poppins', sans-serif",
+          fontSize: "2em",
+          fontWeight: 900,
+          color: "white",
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)"
+        }}>
+          Welcome {user?.username || localUser?.username || "User"}
+        </Typography>
+        <Outlet />
       </Box>
     </Box>
   );

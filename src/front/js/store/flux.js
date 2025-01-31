@@ -40,12 +40,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 					// Guardamos el token
 					setStore({ token: data.token, errorMessage: null });
 					localStorage.setItem("token", data.token);
+					localStorage.setItem("user", JSON.stringify(data.user));
 			
 					// Extraer el user_id del token y guardarlo
 					const decodedToken = JSON.parse(atob(data.token.split(".")[1]));
 					console.log("Decoded token:", decodedToken);
 			
-					setStore({ user: { id: decodedToken.sub } });
+					setStore({ token: data.token, user: data.user, errorMessage: null });
 			
 					return true;
 				} catch (error) {
