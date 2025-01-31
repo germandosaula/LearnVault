@@ -16,7 +16,7 @@ export const FavoritesList = () => {
           throw new Error("No hay token en localStorage.");
         }
   
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/favorites`, {
+        const response = await fetch(`https://super-couscous-wr94q9xj47xgcgg9v-3001.app.github.dev/favorites`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,

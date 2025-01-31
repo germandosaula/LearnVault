@@ -83,6 +83,18 @@ class Leaderboard(db.Model):
     def to_dict(self):
         return {"user_id": self.user_id, "username": self.user.username, "points": self.points}
     
+class Achievement(db.Model):
+    __tablename__ = 'achievements'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.String(250), nullable=False)
+    xp_reward = db.Column(db.Integer, default=0)
+    badge_id = db.Column(db.Integer, db.ForeignKey('badges.id'), nullable=True)  # Opcional
+
+    badge = db.relationship('Badge', backref='achievement')
+
+    
 class Documents(db.Model): 
     __tablename__ = 'documents'  
 
@@ -92,6 +104,8 @@ class Documents(db.Model):
     type = db.Column(db.String(100), nullable=False) 
     subject = db.Column(db.String(100), nullable=False)
     src_url = db.Column(db.String(500), nullable=True)
+    image_url = db.Column(db.String(500), nullable=True, default="https://e00-elmundo.uecdn.es/assets/multimedia/imagenes/2021/12/22/16401922123443.jpg")
+    uploaded_by = db.Column(db.String(100), nullable=True, default="Unknown")
     
     favorites = db.relationship('Favorites', back_populates='documents')
     
@@ -102,7 +116,9 @@ class Documents(db.Model):
             'description': self.description,
             'type': self.type,
             'subject': self.subject,
-            'src_url': self.src_url
+            'src_url': self.src_url,
+            'image_url': self.image_url or "https://e00-elmundo.uecdn.es/assets/multimedia/imagenes/2021/12/22/16401922123443.jpg",
+            'uploaded_by': self.uploaded_by or "Unknown"
         }
     
     def __repr__(self):

@@ -1,38 +1,57 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import ScrollToTop from "./component/scrollToTop";
 import { BackendURL } from "./component/backendURL";
 import { Context } from "./store/appContext";
+import injectContext from "./store/appContext";
+import { Box } from "@mui/material";
 
 import { Home } from "./pages/home";
-import injectContext from "./store/appContext";
-
+import { Dashboard } from "./pages/dashboard";
+import { LoginSignUp } from "./pages/login-signup";
+import { GamificationHub } from "./component/dashboard/GamificationHub";
+import { UploadFile } from "./component/dashboard/UploadFile";
+import { Search } from "./pages/Search";
+import { FavoritesList } from "./component/dashboard/FavoritesList";
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
-import { Dashboard } from './pages/dashboard';
-import { LoginSignUp } from "./pages/login-signup";
 
-
-//create your first component
 const Layout = () => {
-    //the basename is used when your project is published in a subdirectory and not in the root of the domain
-    // you can set the basename on the .env file located at the root of this project, E.g: BASENAME=/react-hello-webapp/
-    const basename = process.env.BASENAME || "";
     const { store } = useContext(Context);
     const isLoggedIn = !!store.token;
 
-    if (!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL />;
+    if (!process.env.BACKEND_URL || process.env.BACKEND_URL === "") return <BackendURL />;
 
     return (
         <BrowserRouter>
             <ScrollToTop>
                 <ConditionalNavbar isLoggedIn={isLoggedIn} />
+
                 <Routes>
-                    <Route element={<Home />} path="/" />
+                    <Route path="/" element={<Home />} />
                     <Route path="/login" element={<LoginSignUp />} />
-                    <Route path="/dashboard/*" element={<Dashboard />} />
-                    <Route path="*" element={<Dashboard />} />
+
+                    {/* 🔥 Dashboard ahora maneja sus subrutas correctamente */}
+                    <Route path="/dashboard/*" element={<Dashboard />}>
+                        <Route path="" element={
+                            <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
+                                <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
+                                    <GamificationHub />
+                                </Box>
+                                <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
+                                    <FavoritesList />
+                                </Box>
+                            </Box>
+                        } />
+                        <Route path="search" element={<Search />} />
+                        <Route path="upload" element={<UploadFile />} />
+                        <Route path="favorites" element={<FavoritesList />} />
+                    </Route>
+
+                    {/* Página 404 */}
+                    <Route path="*" element={<h2>404 - Page Not Found</h2>} />
                 </Routes>
+
                 <Footer />
             </ScrollToTop>
         </BrowserRouter>
@@ -41,12 +60,7 @@ const Layout = () => {
 
 const ConditionalNavbar = ({ isLoggedIn }) => {
     const location = useLocation();
-
-    return (
-        <>
-            {!isLoggedIn && location.pathname !== "/dashboard" && <Navbar />}
-        </>
-    );
+    return !isLoggedIn && location.pathname !== "/dashboard" ? <Navbar /> : null;
 };
 
 export default injectContext(Layout);
