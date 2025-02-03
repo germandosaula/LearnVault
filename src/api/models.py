@@ -1,5 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
@@ -49,6 +49,8 @@ class Badge(db.Model):
     icon = db.Column(db.String(255))  # URL del icono de la insignia
 
     users = db.relationship('UserBadge', back_populates='badge', cascade="all, delete-orphan")
+    upload_badges = db.relationship('UploadBadge', back_populates='badge', cascade="all, delete-orphan")
+    favorite_badges = db.relationship('FavoriteBadge', back_populates='badge', cascade="all, delete-orphan")
 
     def to_dict(self):
         return {"id": self.id, "name": self.name, "description": self.description, "icon": self.icon}
@@ -64,6 +66,9 @@ class UserBadge(db.Model):
 
     user = db.relationship('User', back_populates='badges')
     badge = db.relationship('Badge', back_populates='users')
+
+    user_upload_badges = db.relationship('UserUploadBadge', back_populates='user_badge', cascade="all, delete-orphan")
+    user_favorite_badges = db.relationship('UserFavoriteBadge', back_populates='user_badge', cascade="all, delete-orphan")
 
     def to_dict(self):
         return {
@@ -83,6 +88,10 @@ class UploadBadge(db.Model):
     documents_required = db.Column(db.Integer, nullable=False)  # Cantidad de documentos requeridos para el nivel
     xp_reward = db.Column(db.Integer, default=0)  # Experiencia ganada por alcanzar el nivel
 
+    # Relación con Badge (muchos a uno)
+    badge_id = db.Column(db.Integer, db.ForeignKey('badges.id', ondelete="CASCADE"))
+    badge = db.relationship('Badge', back_populates='upload_badges')
+
     users = db.relationship('UserUploadBadge', back_populates='upload_badge', cascade="all, delete-orphan")
 
     def to_dict(self):
@@ -91,7 +100,8 @@ class UploadBadge(db.Model):
             'name': self.name,
             'description': self.description,
             'documents_required': self.documents_required,
-            'xp_reward': self.xp_reward
+            'xp_reward': self.xp_reward,
+            'badge': self.badge.to_dict() if self.badge else None  # Relación con Badge
         }
 
 
@@ -101,11 +111,13 @@ class UserUploadBadge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     upload_badge_id = db.Column(db.Integer, db.ForeignKey('upload_badges.id', ondelete="CASCADE"), nullable=False)
+    user_badge_id = db.Column(db.Integer, db.ForeignKey('user_badge.id', ondelete="CASCADE"))  # Relación con UserBadge
     earned_at = db.Column(db.DateTime, default=datetime.utcnow)
     documents_uploaded = db.Column(db.Integer, default=0)  # Para llevar cuenta de cuántos documentos ha subido
 
     user = db.relationship('User', back_populates='upload_badges')
     upload_badge = db.relationship('UploadBadge', back_populates='users')
+    user_badge = db.relationship('UserBadge', back_populates='user_upload_badges')  # Relación con UserBadge
 
     def assign_badge(self):
         if self.documents_uploaded >= 20:
@@ -134,10 +146,11 @@ class UserUploadBadge(db.Model):
         return {
             "user_id": self.user_id,
             "upload_badge_id": self.upload_badge_id,
+            "user_badge_id": self.user_badge_id,
             "earned_at": self.earned_at.isoformat(),
-            "badge": self.upload_badge.to_dict()
+            "badge": self.upload_badge.to_dict(),
+            "user_badge": self.user_badge.to_dict() if self.user_badge else None  # Relación con UserBadge
         }
-
 
 
 class FavoriteBadge(db.Model):
@@ -149,6 +162,10 @@ class FavoriteBadge(db.Model):
     favorites_required = db.Column(db.Integer, nullable=False)  # Cantidad de favoritos requeridos para el nivel
     xp_reward = db.Column(db.Integer, default=0)  # Experiencia ganada por alcanzar el nivel
 
+    # Relación con Badge (muchos a uno)
+    badge_id = db.Column(db.Integer, db.ForeignKey('badges.id', ondelete="CASCADE"))
+    badge = db.relationship('Badge', back_populates='favorite_badges')
+
     users = db.relationship('UserFavoriteBadge', back_populates='favorite_badge', cascade="all, delete-orphan")
 
     def to_dict(self):
@@ -157,7 +174,8 @@ class FavoriteBadge(db.Model):
             'name': self.name,
             'description': self.description,
             'favorites_required': self.favorites_required,
-            'xp_reward': self.xp_reward
+            'xp_reward': self.xp_reward,
+            'badge': self.badge.to_dict() if self.badge else None  # Relación con Badge
         }
 
 
@@ -167,11 +185,13 @@ class UserFavoriteBadge(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), nullable=False)
     favorite_badge_id = db.Column(db.Integer, db.ForeignKey('favorite_badges.id', ondelete="CASCADE"), nullable=False)
+    user_badge_id = db.Column(db.Integer, db.ForeignKey('user_badge.id', ondelete="CASCADE"))  # Relación con UserBadge
     earned_at = db.Column(db.DateTime, default=datetime.utcnow)
     favorites_count = db.Column(db.Integer, default=0)  # Para llevar cuenta de cuántos favoritos ha hecho el usuario
 
     user = db.relationship('User', back_populates='favorite_badges')
     favorite_badge = db.relationship('FavoriteBadge', back_populates='users')
+    user_badge = db.relationship('UserBadge', back_populates='user_favorite_badges')  # Relación con UserBadge
 
     def assign_badge(self):
         if self.favorites_count >= 20:
@@ -200,10 +220,11 @@ class UserFavoriteBadge(db.Model):
         return {
             "user_id": self.user_id,
             "favorite_badge_id": self.favorite_badge_id,
+            "user_badge_id": self.user_badge_id,
             "earned_at": self.earned_at.isoformat(),
-            "badge": self.favorite_badge.to_dict()
+            "badge": self.favorite_badge.to_dict(),
+            "user_badge": self.user_badge.to_dict() if self.user_badge else None  # Relación con UserBadge
         }
-
 
 class Leaderboard(db.Model):
     __tablename__ = "leaderboard"
