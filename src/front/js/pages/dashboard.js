@@ -5,7 +5,7 @@ import {
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { Context } from "../store/appContext";
-import { useNavigate, Outlet } from "react-router-dom";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
@@ -18,7 +18,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 export const Dashboard = () => {
   const { store, actions } = useContext(Context);
   const navigate = useNavigate();
-
+  const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -128,106 +128,138 @@ export const Dashboard = () => {
         }
       }}
     >
-      {/* Botón para abrir/cerrar Sidebar */}
-      <IconButton
-        onClick={toggleSidebar}
-        sx={{
-          position: "fixed",
-          top: 20,
-          left: isSidebarOpen ? 260 : 20,
-          zIndex: 10,
-          backgroundColor: "#1e1e2e",
-          color: "white",
-          borderRadius: "50%",
-          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
-          transition: "left 0.3s ease-in-out",
-          "&:hover": { backgroundColor: "#333" },
-        }}
-      >
-        {isSidebarOpen ? <CloseIcon /> : <MenuIcon />}
-      </IconButton>
+{/* Botón para abrir el Sidebar cuando está cerrado */}
+{!isSidebarOpen && (
+  <IconButton
+    onClick={toggleSidebar}
+    sx={{
+      position: "fixed",
+      top: 20,
+      left: 20,
+      zIndex: 1100,
+      backgroundColor: "#1e1e2e",
+      color: "white",
+      borderRadius: "50%",
+      width: "40px",
+      height: "40px",
+      boxShadow: "0 2px 10px rgba(0, 0, 0, 0.2)",
+      transition: "background 0.3s",
+      "&:hover": { backgroundColor: "#333" },
+    }}
+  >
+    <MenuIcon />
+  </IconButton>
+)}
 
-      {/* Sidebar */}
-      <motion.div
-        initial={{ x: -250 }}
-        animate={{ x: isSidebarOpen ? 0 : -260 }}
-        transition={{ duration: 0.3 }}
-        style={{
-          width: "250px",
-          height: "100%",
-          background: "#1e1e2e",
-          color: "white",
-          display: "flex",
-          flexDirection: "column",
-          padding: "20px",
-          boxShadow: "3px 0 10px rgba(0, 0, 0, 0.2)",
-          position: "fixed",
-          left: isSidebarOpen ? 0 : -250,
-          top: 0,
-          transition: "left 0.3s ease-in-out",
-        }}
-      >
-        {/* Perfil del Usuario */}
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 4 }}>
-          <Avatar src={userData?.avatar || "https://randomuser.me/api/portraits/men/45.jpg"} sx={{ width: 80, height: 80, mb: 2 }} />
-          <Typography variant="h6">{userData?.username || "No Name"}</Typography>
-          <Typography variant="body2">{userData?.email || "No Email"}</Typography>
+<motion.div
+  initial={{ x: -250 }}
+  animate={{ x: isSidebarOpen ? 0 : "-100%" }}
+  transition={{ duration: 0.3 }}
+  style={{
+    width: "250px",
+    height: "100%",
+    background: "#1e1e2e",
+    color: "white",
+    display: "flex",
+    flexDirection: "column",
+    padding: "20px",
+    boxShadow: "3px 0 10px rgba(0, 0, 0, 0.2)",
+    position: "fixed",
+    left: isSidebarOpen ? 0 : "-100%",
+    top: 0,
+    transition: "left 0.2s ease-in-out",
+    zIndex: 1000,
+  }}
+>
+  {/* 🔵 Botón de Cerrar dentro del Sidebar */}
+  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+    <IconButton
+      onClick={toggleSidebar}
+      sx={{
+        backgroundColor: "transparent",
+        color: "white",
+        borderRadius: "50%",
+        transition: "background 0.2s",
+        "&:hover": { backgroundColor: "#333" },
+      }}
+    >
+      <CloseIcon />
+    </IconButton>
+  </Box>
 
-          {/* Botón para Editar Perfil */}
-          <Button
-            startIcon={<EditIcon />}
-            onClick={handleOpenModal}
-            sx={{ color: "white", mt: 2, background: "#ff6a88", ":hover": { background: "#e85c7b" } }}
-          >
-            Edit Profile
-          </Button>
-        </Box>
-        <Divider sx={{ backgroundColor: "#444", my: 3 }} />
+  {/* Perfil del Usuario */}
+  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 2 }}>
+    <Avatar src={userData?.avatar || "https://images.squarespace-cdn.com/content/v1/54b7b93ce4b0a3e130d5d232/1519986430884-H1GYNRLHN0VFRF6W5TAN/icon.png?format=750w"} sx={{ width: 80, height: 80, mb: 2 }} />
+    <Typography variant="h6">{userData?.username || "No Name"}</Typography>
+    <Typography variant="body2">{userData?.email || "No Email"}</Typography>
+    {/* Botón para Editar Perfil */}
+    <Button
+      onClick={handleOpenModal}
+      sx={{
+        color: "white",
+        mt: 2,
+        background: "#ff6a88",
+        ":hover": { background: "#e85c7b" },
+        borderRadius: "50%",
+        width: "40px",
+        height: "40px",
+        minWidth: "40px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 0,
+      }}
+    >
+      <EditIcon fontSize="small" />
+    </Button>
+  </Box>
 
-        {/* Botones de Navegación */}
-        <Button startIcon={<DashboardIcon />} onClick={() => navigate("/dashboard")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
-          Dashboard
-        </Button>
-        <Button startIcon={<SearchIcon />} onClick={() => navigate("/dashboard/search")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
-          Search Resources
-        </Button>
-        <Button startIcon={<UploadIcon />} onClick={() => navigate("/dashboard/upload")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
-          Upload Resources
-        </Button>
-        <Button startIcon={<FavoriteIcon />} onClick={() => navigate("/dashboard/favorites")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
-          Favorites
-        </Button>
+  <Divider sx={{ my: 3 }} />
 
-        <Divider sx={{ backgroundColor: "#444", my: 3 }} />
+  {/* Botones de Navegación */}
+  <Button startIcon={<DashboardIcon />} onClick={() => navigate("/dashboard")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
+    Dashboard
+  </Button>
+  <Button startIcon={<SearchIcon />} onClick={() => navigate("/dashboard/search")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
+    Search Resources
+  </Button>
+  <Button startIcon={<UploadIcon />} onClick={() => navigate("/dashboard/upload")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
+    Upload Resources
+  </Button>
+  <Button startIcon={<FavoriteIcon />} onClick={() => navigate("/dashboard/favorites")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
+    Favorites
+  </Button>
 
-        {/* Botón de Logout */}
-        <Button
-          startIcon={<LogoutIcon />}
-          onClick={() => {
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            actions.logout?.();
-            navigate("/login");
-          }}
-          sx={{
-            color: "white",
-            justifyContent: "center",
-            alignItems: "center",
-            textAlign: "center",
-            fontWeight: "bold",
-            display: "flex",
-            mt: "auto",
-            background: "#ff6a88",
-            ":hover": { background: "#e85c7b" },
-            position: "absolute",
-            bottom: 20,
-            left: 20,
-            width: "calc(100% - 40px)",
-          }}
-        >
-          Logout
-        </Button>
-      </motion.div>
+  <Divider sx={{ my: 3 }} />
+
+  {/* Botón de Logout */}
+  <Button
+    startIcon={<LogoutIcon />}
+    onClick={() => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      actions.logout?.();
+      navigate("/login");
+    }}
+    sx={{
+      color: "white",
+      justifyContent: "center",
+      alignItems: "center",
+      textAlign: "center",
+      fontWeight: "bold",
+      display: "flex",
+      mt: "auto",
+      background: "#ff6a88",
+      ":hover": { background: "#e85c7b" },
+      position: "absolute",
+      bottom: 20,
+      left: 20,
+      width: "calc(100% - 40px)",
+    }}
+  >
+    Logout
+  </Button>
+</motion.div>
 
       {/* ✅ Modal Restaurado y Funcional */}
       <Modal open={openModal} onClose={handleCloseModal}>
@@ -273,16 +305,20 @@ export const Dashboard = () => {
           transition: "margin-left 0.3s ease-in-out"
         }}
       >
-        <Typography sx={{
+        {location.pathname === "/dashboard" && (
+      <Typography
+        sx={{
           marginLeft: 5,
           fontFamily: "'Poppins', sans-serif",
           fontSize: "2em",
           fontWeight: 900,
           color: "white",
-          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)"
-        }}>
-          Welcome {user?.username || localUser?.username || "User"}
-        </Typography>
+          textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
+        }}
+      >
+        Welcome {user?.username || localUser?.username || "User"}
+      </Typography>
+    )}
         <Outlet />
       </Box>
     </Box>

@@ -43,7 +43,7 @@ export const FavoritesList = () => {
   }, []);
 
   return (
-    <Card sx={{ width: "100%", p: 2, boxShadow: 3, borderRadius: 4, marginTop: 2, }}>
+    <Card sx={{ width: "100%", p: 2, boxShadow: 3, borderRadius: 4, marginTop: 2, boxShadow: "none" }}>
       <CardHeader title="Favorite Resources" sx={{ textAlign: "center", fontWeight: "bold" }} />
       <CardContent>
         {loading ? (

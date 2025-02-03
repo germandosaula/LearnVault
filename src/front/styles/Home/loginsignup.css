@@ -6,6 +6,7 @@
     justify-content: center;
     flex-direction: column;
     height: 100vh;
+    padding-top: 50px;
 }
 
 .new-login::before {
@@ -249,4 +250,138 @@
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
+}
+
+/* Responsive */
+@media (max-width: 1700px) {
+    .container {
+        width: 70%;
+        max-width: 800px; /* Ajusta el ancho para pantallas más grandes */
+    }
+    
+    .new-login {
+        padding-top: 100px; /* Espacio adicional si es necesario */
+    }
+
+    .container h1 {
+        font-size: 2.5rem; /* Un poco más grande que en 1024px */
+    }
+
+    .container p {
+        font-size: 1.2rem; /* Ajuste del texto */
+    }
+}
+
+@media (max-width: 1500px) {
+    .container {
+        width: 70%;
+        max-width: 800px; /* Ajusta el ancho para pantallas más grandes */
+    }
+    
+    .new-login {
+        padding-top: 100px; /* Espacio adicional si es necesario */
+    }
+
+    .container h1 {
+        font-size: 2.5rem; /* Un poco más grande que en 1024px */
+    }
+
+    .container p {
+        font-size: 1.2rem; /* Ajuste del texto */
+    }
+}
+
+@media (max-width: 1024px) {
+    .container {
+        width: 80%;
+        max-width: 600px;
+    }
+    .new-login {
+        padding-top: 80px;
+    }
+
+    .container h1 {
+        font-size: 2rem;
+    }
+
+    .container p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        max-width: 500px;
+    }
+    .new-login {
+        padding-top: 80px;
+    }
+    .container h1 {
+        font-size: 1.8rem;
+    }
+
+    .container p {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: 95%;
+        max-width: 380px;
+        min-height: 70vh; /* Mantiene la proporción sin sobrepasar */
+        max-height: 85vh; /* Evita que crezca demasiado */
+        padding: 20px;
+    }
+
+    .new-login {
+        padding-top: 60px;
+        min-height: 85vh; /* Mantiene el footer en su lugar */
+    }
+
+    .container h1 {
+        font-size: 1.3rem;
+    }
+
+    .container p {
+        font-size: 0.85rem;
+    }
+
+    .container button {
+        font-size: 0.75rem;
+        padding: 7px 30px;
+    }
+
+    .container input {
+        font-size: 0.75rem;
+        padding: 7px;
+    }
+}
+
+/* Para dispositivos aún más pequeños (ej: iPhone SE) */
+@media (max-width: 360px) {
+    .new-login {
+        padding-top: 80px; /* Ajusta para evitar solapamiento */
+    }
+
+    .container {
+        width: 98%;
+        max-width: 320px;
+        min-height: 75vh;
+        padding: 15px;
+    }
+
+    .container h1 {
+        font-size: 1.2rem;
+    }
+
+    .container p {
+        font-size: 0.75rem;
+    }
+
+    .container button {
+        font-size: 0.7rem;
+        padding: 6px 20px;
+    }
 }

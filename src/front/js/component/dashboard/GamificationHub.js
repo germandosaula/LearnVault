@@ -111,7 +111,7 @@ export const GamificationHub = ({ userExperience }) => {
   };
 
   return (
-    <Box sx={{ padding: 3, borderRadius: "16px", boxShadow: 3, background: "#fff" }}>
+    <Box sx={{ padding: 3, borderRadius: "16px",}}>
       <Typography variant="h6">Level {isNaN(level) ? "0" : level}</Typography>
       <LinearProgress
         variant="determinate"
@@ -144,7 +144,7 @@ export const GamificationHub = ({ userExperience }) => {
         {leaderboard.length > 0 ? (
           leaderboard.map((user, index) => (
             <Grid item xs={12} key={index}>
-              <Card sx={{ display: "flex", justifyContent: "space-between", padding: 1 }}>
+              <Card sx={{ display: "flex", justifyContent: "space-between", padding: 1, boxShadow: "none", background: "transparent" }}>
                 <CardContent>
                   <Typography variant="body1">{index + 1}. {user.username}</Typography>
                 </CardContent>
