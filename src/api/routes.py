@@ -7,6 +7,26 @@ from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 import os
+import firebase_admin
+from firebase_admin import auth, credentials
+from dotenv import load_dotenv
+
+load_dotenv()
+
+cred = credentials.Certificate({
+    "type": os.getenv("FIREBASE_TYPE"),
+    "project_id": os.getenv("FIREBASE_PROJECT_ID"),
+    "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID"),
+    "private_key": os.getenv("FIREBASE_PRIVATE_KEY").replace('\\n', '\n'),
+    "client_email": os.getenv("FIREBASE_CLIENT_EMAIL"),
+    "client_id": os.getenv("FIREBASE_CLIENT_ID"),
+    "auth_uri": os.getenv("FIREBASE_AUTH_URI"),
+    "token_uri": os.getenv("FIREBASE_TOKEN_URI"),
+    "auth_provider_x509_cert_url": os.getenv("FIREBASE_AUTH_PROVIDER_CERT_URL"),
+    "client_x509_cert_url": os.getenv("FIREBASE_CLIENT_CERT_URL")
+})
+
+firebase_admin.initialize_app(cred)
 
 
 api = Blueprint('api', __name__)
@@ -18,6 +38,45 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE'
     return response
+
+
+@api.route('/google-auth', methods=['POST'])
+def google_auth():
+    data = request.get_json()
+    id_token = data.get('token')
+
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        email = decoded_token['email']
+        username = decoded_token.get('name', email.split('@')[0])
+
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User(
+                username=username,
+                email=email,
+                password="google_auth",
+                auth_method='google'
+            )
+            db.session.add(user)
+            db.session.commit()
+        elif user.auth_method != 'google':
+            return jsonify({'msg': 'Este email está registrado con otro método'}), 409
+
+        access_token = create_access_token(identity=str(user.id))
+        user_data = {
+            "id": user.id,
+            "email": user.email,
+            "username": user.username
+        }
+        return jsonify({
+            "token": access_token,
+            "user": user_data
+        }), 200
+
+    except Exception as e:
+        print("Error en Google Auth:", e)
+        return jsonify({"msg": "Autenticación fallida"}), 401
 
 ## CRUD Users:
 @api.route('/signup', methods=['POST'])
@@ -192,25 +251,26 @@ def login_user():
     email = body["email"]
     password = body["password"]
 
-    user = User.query.filter_by(email=email, password=password).first()  # Comparación directa
+    user = User.query.filter_by(email=email).first()
 
-    if user is None: 
+    if user and user.auth_method == 'google':
+        return jsonify({'msg': 'Usa Google para iniciar sesión'}), 400
+
+    if not user or user.password != password:
         return jsonify({'msg': 'Credenciales inválidas'}), 401
 
-    # Convertir user.id a string antes de generar el token
     token = create_access_token(identity=str(user.id))
     user_data = {
-            "id": user.id,
-            "email": user.email,
-            "username": user.username
-        }
+        "id": user.id,
+        "email": user.email,
+        "username": user.username
+    }
 
     return jsonify({
-            "msg": "Inicio de sesión exitoso",
-            "token": token,
-            "user": user_data  # 🔥 **Asegura que esto se devuelva**
-        }), 200
-
+        "msg": "Inicio de sesión exitoso",
+        "token": token,
+        "user": user_data
+    }), 200
 ## CRUD Documents:
 @api.route('/documents', methods=['POST'])
 def upload_document():
