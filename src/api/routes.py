@@ -2,7 +2,7 @@
 # This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 # """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Documents, Favorites, Task, Leaderboard, UserBadge
+from api.models import db, User, Documents, Favorites, Task, Leaderboard, Badge, UserBadge, UserUploadBadge, UserFavoriteBadge
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
@@ -658,8 +658,7 @@ def complete_action(user_id):
     action_rewards = {
         "upload_file": 50,
         "download_file": 20,
-        "comment": 10,
-        "streak_bonus": 30
+        "add_favorite": 20
     }
 
     xp_gained = action_rewards.get(action, 0)
@@ -675,7 +674,51 @@ def complete_action(user_id):
         badge_unlocked = Badge.query.get(2)  # Explorador
         new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
         db.session.add(new_badge)
+        
+    if action == "add_favorite" and not UserBadge.query.filter_by(user_id=user.id, badge_id=3).first(): 
+        badge_unlocked = Badge.query.get(3)  
+        new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
+        db.session.add(new_badge)    
+        
+    # 🔥 Desbloqueo de insignias de UploadBadge (Basado en documentos subidos)
+    
+    upload_badge = UserUploadBadge.query.filter_by(user_id=user.id).first()  # Tomamos el primer UserUploadBadge del usuario
+    
+    if upload_badge.documents_uploaded >= 20 and not UserBadge.query.filter_by(user_id=user.id, badge_id=upload_badge.upload_badge.id).first():
+        badge_unlocked = upload_badge.upload_badge
+        new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
+        db.session.add(new_badge)
+        
+    elif upload_badge.documents_uploaded >= 10 and not UserBadge.query.filter_by(user_id=user.id, badge_id=upload_badge.upload_badge.id).first():
+        badge_unlocked = upload_badge.upload_badge
+        new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
+        db.session.add(new_badge)
+        
+    elif upload_badge.documents_uploaded >= 5 and not UserBadge.query.filter_by(user_id=user.id, badge_id=upload_badge.upload_badge.id).first():
+        badge_unlocked = upload_badge.upload_badge 
+        new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
+        db.session.add(new_badge)
 
+    # 🔥 Desbloqueo de insignias de FavoriteBadge (Basado en la cantidad de favoritos)
+    
+    favorite_badge = UserFavoriteBadge.query.filter_by(user_id=user.id).first()  # Tomamos el primer UserFavoriteBadge del usuario
+    
+    if favorite_badge.favorites_count >= 20 and not UserBadge.query.filter_by(user_id=user.id, badge_id=favorite_badge.favorite_badge.id).first():
+        badge_unlocked = favorite_badge.favorite_badge
+        new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
+        db.session.add(new_badge)
+        
+    elif favorite_badge.favorites_count >= 10 and not UserBadge.query.filter_by(user_id=user.id, badge_id=favorite_badge.favorite_badge.id).first():
+        badge_unlocked = favorite_badge.favorite_badge
+        new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
+        db.session.add(new_badge)
+        
+    elif favorite_badge.favorites_count >= 5 and not UserBadge.query.filter_by(user_id=user.id, badge_id=favorite_badge.favorite_badge.id).first():
+        badge_unlocked = favorite_badge.favorite_badge
+        new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
+        db.session.add(new_badge)
+        
+        
     db.session.commit()
 
     response = {"xp_gained": xp_gained, "new_experience": user.experience}
