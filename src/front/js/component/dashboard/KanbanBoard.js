@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import { motion, AnimatePresence } from "framer-motion";
+import "../../../styles/Dashboard/kanbanBoard.css"
 
 const API_URL = "https://super-couscous-wr94q9xj47xgcgg9v-3001.app.github.dev/api";
 
@@ -256,48 +256,56 @@ export const KanbanBoard = () => {
   if (loading) return <Typography>Loading...</Typography>;
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100%", p: 2 }}>
-      <Typography variant="h4" gutterBottom sx={{ textAlign: "center" }}>
-        Kanban Board
-      </Typography>
+    <div className="kanban-container">
+      <h2 className="kanban-title">Organization Board</h2>
       {error && <Alert severity="error">{error}</Alert>}
-      <Box sx={{ display: "flex", mb: 2, justifyContent: "center" }}>
-        <TextField value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="New task" size="small" />
-        <Button variant="contained" startIcon={<AddIcon />} onClick={addTask}>
-          Add Task
-        </Button>
-      </Box>
+      <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginBottom: "16px" }}>
+        <TextField
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
+          placeholder="New task"
+          size="small"
+          className="new-task-input"
+        />
+        <button className="add-task-button" onClick={addTask}>
+          <AddIcon /> Add Task
+        </button>
+      </div>
       <DragDropContext onDragEnd={onDragEnd}>
-        <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 2, overflowX: "auto" }}>
+        <div className="kanban-columns">
           {Object.values(columns).map((column) => (
             <Droppable key={column.id} droppableId={column.id}>
               {(provided) => (
-                <Box ref={provided.innerRef} {...provided.droppableProps} sx={{ minWidth: 250, p: 2, bgcolor: "grey.100" }}>
-                  <Typography variant="h6">{column.title}</Typography>
+                <div ref={provided.innerRef} {...provided.droppableProps} className="column">
+                  <h3 className="column-title">{column.title}</h3>
                   {column.tasks.map((task, index) => (
                     <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
-                      {(provided) => (
-                        <Box
+                      {(provided, snapshot) => (
+                        <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          sx={{ p: 2, mb: 1, bgcolor: "white", borderRadius: 1, boxShadow: 1 }}
+                          className={`task ${snapshot.isDragging ? "dragging" : ""}`}
+                          style={{
+                            ...provided.draggableProps.style,
+                            opacity: snapshot.isDragging ? 0.8 : 1,
+                          }}
                         >
-                          <Typography>{task.name}</Typography>
-                          <IconButton size="small" onClick={() => handleDeleteTask(column.id, task.id)}>
+                          <span>{task.name}</span>
+                          <IconButton size="small" style={{ color: "#E53E3E" }} onClick={() => handleDeleteTask(column.id, task.id)}>
                             <DeleteIcon fontSize="small" />
                           </IconButton>
-                        </Box>
+                        </div>
                       )}
                     </Draggable>
                   ))}
                   {provided.placeholder}
-                </Box>
+                </div>
               )}
             </Droppable>
           ))}
-        </Box>
+        </div>
       </DragDropContext>
-    </Box>
-  );
+    </div>
+  );  
 };
