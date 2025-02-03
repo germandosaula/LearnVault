@@ -281,7 +281,7 @@ export const Dashboard = () => {
           color: "white",
           textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)"
         }}>
-          Welcome {user?.username || localUser?.username || "User"}
+          Welcome  {user?.username || localUser?.username || "User"}
         </Typography>
         <Outlet />
       </Box>

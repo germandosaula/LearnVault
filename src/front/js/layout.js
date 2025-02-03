@@ -13,6 +13,7 @@ import { GamificationHub } from "./component/dashboard/GamificationHub";
 import { UploadFile } from "./component/dashboard/UploadFile";
 import { Search } from "./pages/Search";
 import { FavoritesList } from "./component/dashboard/FavoritesList";
+import { KanbanBoard } from "./component/dashboard/KanbanBoard";
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
 
@@ -34,18 +35,24 @@ const Layout = () => {
                     {/* 🔥 Dashboard ahora maneja sus subrutas correctamente */}
                     <Route path="/dashboard/*" element={<Dashboard />}>
                         <Route path="" element={
-                            <Box sx={{ display: "flex", gap: 2, mt: 4 }}>
-                                <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
-                                    <GamificationHub />
-                                </Box>
-                                <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
-                                    <FavoritesList />
-                                </Box>
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 4 }}>
+                            <Box sx={{ display: "flex", gap: 2 }}>
+                              <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
+                                <GamificationHub />
+                              </Box>
+                              <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", flex: 1 }}>
+                                <FavoritesList />
+                              </Box>
                             </Box>
+                            <Box sx={{ background: "#fff", padding: "20px", borderRadius: "12px", width: "100%" }}>
+                              <KanbanBoard />
+                            </Box>
+                          </Box>
                         } />
                         <Route path="search" element={<Search />} />
                         <Route path="upload" element={<UploadFile />} />
                         <Route path="favorites" element={<FavoritesList />} />
+                        
                     </Route>
 
                     {/* Página 404 */}
