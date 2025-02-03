@@ -154,6 +154,8 @@ class Task(db.Model):
     description = db.Column(db.String(255))
     due_date = db.Column(db.DateTime)
     completed = db.Column(db.Boolean, default=False)
+    order = db.Column(db.Integer, default=0)
+    status = db.Column(db.String(50), default="tasks")
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     user = db.relationship('User', back_populates='tasks') 
@@ -168,5 +170,7 @@ class Task(db.Model):
             'description': self.description,
             'due_date': self.due_date,
             'completed': self.completed,
-            'user_id': self.user_id
+            'user_id': self.user_id,
+            "order": self.order,
+            "status": self.status,
         }

@@ -14,9 +14,10 @@ CORS(api, resources={r"/*": {"origins": os.getenv("FRONT_URL"), "allow_headers":
 
 @api.after_request
 def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] =  os.getenv("FRONT_URL")
+    response.headers['Access-Control-Allow-Origin'] = os.getenv("FRONT_URL")
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'  # Habilitar credenciales
     return response
 
 ## CRUD Users:
@@ -198,7 +199,7 @@ def login_user():
         return jsonify({'msg': 'Credenciales inválidas'}), 401
 
     # Convertir user.id a string antes de generar el token
-    token = create_access_token(identity=str(user.id))
+    token = create_access_token(identity=str(user.email))
     user_data = {
             "id": user.id,
             "email": user.email,
@@ -361,35 +362,46 @@ def delete_favorite(id):
 @api.route('/tasks', methods=['POST'])
 @jwt_required()
 def handle_create_task():
-    
-    body = request.get_json()
+    try:
+        print("✅ Recibida solicitud en /tasks")
+        
+        body = request.get_json()
+        if not body:
+            print("❌ Error: No se recibió JSON en la petición")
+            return jsonify({'msg': 'Error: No se recibió JSON'}), 400
 
-    if body is None:
-        return jsonify({'msg': 'Error'}), 400
-    if "name" not in body:
-        return jsonify({'msg': 'Name is required'}), 400
-    if "due_date" not in body:
-        return jsonify({'msg': 'Due date is required'}), 400
+        required_fields = ["name", "due_date"]
+        for field in required_fields:
+            if field not in body:
+                print(f"❌ Error: Falta el campo {field}")
+                return jsonify({'msg': f'{field} is required'}), 400
 
-    current_user_email = get_jwt_identity()
-    
-    user: User = User.query.filter_by(email=current_user_email).first()
+        current_user_email = get_jwt_identity()
+        print(f"🔍 Usuario autenticado: {current_user_email}")
 
-    if user is None:
-        return jsonify({'msg': 'User not found'}), 404
+        user = User.query.filter_by(email=current_user_email).first()
+        if user is None:
+            print("❌ Error: Usuario no encontrado")
+            return jsonify({'msg': f'User not found: {current_user_email}'}), 404
 
-    task = Task(
-        name=body["name"],
-        description=body["description"],
-        due_date=body["due_date"],
-        user_id=user.id
-    )
+        print("✅ Usuario encontrado, creando tarea...")
 
-    db.session.add(task)
-    db.session.commit()
+        task = Task(
+            name=body["name"],
+            description=body.get("description", ""),  # Si no hay descripción, usa ""
+            due_date=body["due_date"],
+            user_id=user.id
+        )
 
-    return jsonify(task.serialize()), 201
+        db.session.add(task)
+        db.session.commit()
+        print("✅ Tarea creada con éxito:", task.id)
 
+        return jsonify(task.serialize()), 201  # Asegurar que se devuelve la respuesta
+
+    except Exception as e:
+        print(f"🔥 Error interno: {str(e)}")
+        return jsonify({"msg": "Internal server error", "error": str(e)}), 500
 
 @api.route('/tasks', methods=['GET'])
 @jwt_required()
@@ -407,6 +419,38 @@ def handle_get_tasks():
     result = [task.serialize() for task in tasks]
 
     return jsonify(result), 200
+
+@api.route('/tasks/order', methods=['PUT'])
+@jwt_required()
+def update_task_order():
+    data = request.get_json()
+
+    for task_data in data:
+        task = Task.query.get(task_data["id"])
+        if task:
+            task.order = task_data["order"]
+
+    db.session.commit()
+    return jsonify({"msg": "Task order updated"}), 200
+
+@api.route('/tasks/<int:task_id>', methods=['PUT'])
+@jwt_required()
+def update_task(task_id):
+    body = request.get_json()
+    new_status = body.get("status")
+
+    if not new_status:
+        return jsonify({"msg": "Missing status"}), 400
+
+    task = Task.query.get(task_id)
+
+    if not task:
+        return jsonify({"msg": "Task not found"}), 404
+
+    task.status = new_status
+    db.session.commit()
+
+    return jsonify({"msg": f"Task {task_id} updated", "status": task.status}), 200
 
 
 @api.route('/tasks/<int:id>', methods=['GET'])
