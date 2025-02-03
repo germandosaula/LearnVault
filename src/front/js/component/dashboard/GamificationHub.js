@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, LinearProgress, Avatar, Tooltip, Grid, Card, CardContent } from "@mui/material";
 
-export const GamificationHub = ({userExperience}) => {
+export const GamificationHub = ({ userExperience }) => {
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
   const userId = user ? user.id : null;
@@ -85,19 +85,17 @@ export const GamificationHub = ({userExperience}) => {
         console.log("New Badge:", data.badge_unlocked);
       }
 
-      // Verifica si el usuario ha desbloqueado una nueva insignia
-      if (data.badge_unlocked) {
-      console.log("New Badge:", data.badge_unlocked);
-      
-      // 🔥 Actualiza el estado de las insignias con la nueva insignia desbloqueada
-      setBadges(prevBadges => [...prevBadges, data.badge_unlocked]);
-    }
-
       // 🔥 Actualiza el estado con la nueva experiencia del usuario
       setUserData(prevData => ({
         ...prevData,
         experience: data.new_experience
       }));
+
+      // 🔥 Verifica si se ha desbloqueado una nueva insginia y las actualiza
+      if (data.badge_unlocked) {
+        console.log("New Badge:", data.badge_unlocked);
+        setBadges(prevBadges => [...prevBadges, data.badge_unlocked]);
+      }
 
       // 🔥 Refrescar las insignias si se ha desbloqueado una nueva
       fetch(`${BACKEND_URL}/api/badges/${userId}`, {
@@ -115,10 +113,10 @@ export const GamificationHub = ({userExperience}) => {
   return (
     <Box sx={{ padding: 3, borderRadius: "16px", boxShadow: 3, background: "#fff" }}>
       <Typography variant="h6">Level {isNaN(level) ? "0" : level}</Typography>
-      <LinearProgress 
-        variant="determinate" 
+      <LinearProgress
+        variant="determinate"
         value={isNaN(progress) ? 0 : progress}
-        sx={{ height: 10, borderRadius: 5 }} 
+        sx={{ height: 10, borderRadius: 5 }}
       />
       <Typography variant="body2">{experience} XP</Typography>
 
