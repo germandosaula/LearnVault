@@ -214,7 +214,7 @@ export const Dashboard = () => {
     </Button>
   </Box>
 
-  <Divider sx={{ backgroundColor: "#444", my: 3 }} />
+  <Divider sx={{ my: 3 }} />
 
   {/* Botones de Navegación */}
   <Button startIcon={<DashboardIcon />} onClick={() => navigate("/dashboard")} sx={{ color: "white", justifyContent: "flex-start", mt: 1 }}>
@@ -230,7 +230,7 @@ export const Dashboard = () => {
     Favorites
   </Button>
 
-  <Divider sx={{ backgroundColor: "#444", my: 3 }} />
+  <Divider sx={{ my: 3 }} />
 
   {/* Botón de Logout */}
   <Button
