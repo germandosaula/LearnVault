@@ -32,7 +32,7 @@ export const KanbanBoard = () => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const taskColors = ["#FFCDD2", "#C8E6C9", "#BBDEFB", "#ff9a8b", "#ff6a88", "#ff99ac"];
+  const taskColors = ["#fc8591", "#8ddd90", "#86bfee", "#ff9a8b", "#ff6a88", "#ff99ac"];
   const getRandomColor = () => taskColors[Math.floor(Math.random() * taskColors.length)];
 
   useEffect(() => {
@@ -322,7 +322,7 @@ export const KanbanBoard = () => {
                             boxShadow: "0px 2px 4px rgba(0,0,0,0.2)",
                           }}
                         >
-                          <Typography sx={{ fontWeight: "bold" }}>{task.name}</Typography>
+                          <Typography sx={{ fontWeight: "bold", color: "white", textShadow: "0px 2px 4px rgba(0,0,0,0.8)"}}>{task.name}</Typography>
                           <IconButton size="small" style={{ color: "#E53E3E" }} onClick={() => handleDeleteTask(column.id, task.id)}>
                             <DeleteIcon fontSize="small" />
                           </IconButton>
