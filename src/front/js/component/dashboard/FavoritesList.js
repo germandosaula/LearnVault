@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -17,9 +17,11 @@ import {
   IconButton,
   Typography,
   Tooltip,
-} from "@mui/material"
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { OpenInNew, Delete, Favorite } from "@mui/icons-material"
-import { styled } from "@mui/material/styles"
+import { styled } from "@mui/material/styles";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   width: "100%",
@@ -28,105 +30,85 @@ const StyledCard = styled(Card)(({ theme }) => ({
   marginTop: theme.spacing(2),
   background: "transparent",
   boxShadow: "none",
-}))
-
-const StyledCardHeader = styled(CardHeader)(({ theme }) => ({
-  textAlign: "center",
-  padding: theme.spacing(4, 2, 2, 2),
-  position: "relative",
-  "& .MuiCardHeader-title": {
-    fontWeight: "bold",
-    fontSize: "1.5rem",
-  },
-}))
+}));
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   marginTop: theme.spacing(2),
   borderRadius: theme.shape.borderRadius,
   boxShadow: "none",
   background: "transparent",
-}))
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  borderBottom: `1px solid ${theme.palette.divider}`,
-}))
+}));
 
 export const FavoritesList = () => {
-  const [favorites, setFavorites] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const theme = useTheme();
+  const isMobile = useMediaQuery("(max-width: 900px)");
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const token = localStorage.getItem("token")
-
-        if (!token) throw new Error("No hay token en localStorage.")
-
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No hay token en localStorage.");
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/favorites`, {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        })
-
-        if (!response.ok) throw new Error(`Error en la API: ${response.status} ${response.statusText}`)
-
-        const data = await response.json()
-        console.log("Respuesta API:", data)
-
-        setFavorites(Array.isArray(data) ? data : [])
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        });
+        if (!response.ok) throw new Error(`Error en la API: ${response.status} ${response.statusText}`);
+        const data = await response.json();
+        setFavorites(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error("Error obteniendo favoritos:", err)
-        setError(err.message)
+        setError(err.message);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-
-    fetchFavorites()
-  }, [])
+    };
+    fetchFavorites();
+  }, []);
 
   const handleDeleteFavorite = async (favoriteId) => {
     try {
-      const token = localStorage.getItem("token")
-
+      const token = localStorage.getItem("token");
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/favorites/${favoriteId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
-      })
-
-      if (!response.ok) throw new Error("Error eliminando favorito")
-
-      setFavorites((prevFavorites) => prevFavorites.filter((fav) => fav.id !== favoriteId))
+      });
+      if (!response.ok) throw new Error("Error eliminando favorito");
+      setFavorites((prevFavorites) => prevFavorites.filter((fav) => fav.id !== favoriteId));
     } catch (error) {
-      console.error("Error eliminando favorito:", error)
+      console.error("Error eliminando favorito:", error);
     }
-  }
+  };
 
   return (
     <Box sx={{ position: "relative", width: "100%" }}>
+      <Box sx={{ position: "relative" }}>
+        {!isMobile && (
+          <Favorite
+            sx={{
+              position: "absolute",
+              top: -35,
+              left: -16,
+              fontSize: 100,
+              color: "#ff6a88",
+              transform: "rotate(-20deg)",
+              zIndex: 1000,
+              transition: "all 0.3s ease-in-out",
+              pointerEvents: "auto",
+              "&:hover": {
+                transform: "rotate(0deg) scale(1.1)",
+                color: "#ff99ac",
+              },
+            }}
+          />
+        )}
+      </Box>
       <StyledCard>
-        <Favorite
-          sx={{
-            position: "absolute",
-            top: -35,
-            left: -15,
-            fontSize: 90,
-            color: "#ff6a88",
-            transform: "rotate(-20deg)",
-            zIndex: 1000,
-            transition: "all 0.3s ease",
-            "&:hover": {
-              transform: "rotate(0deg) scale(1.05)",
-              color: "#ff9a8b",
-            },
-          }}
-        />
-        <Box sx={{ position: "relative" }}>
-
-          <StyledCardHeader title="Favorite Resources" />
+        <Box sx={{ flex: 1, textAlign: "center" }}>
+          <Typography variant="h5" fontWeight="bold" sx={{ color: "#ff6a88" }}>
+            Favorite Resources
+          </Typography>
         </Box>
         <CardContent>
           {loading ? (
@@ -142,29 +124,31 @@ export const FavoritesList = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <StyledTableCell>
-                      <Typography variant="subtitle1">
+                    <TableCell>
+                      <Typography variant="subtitle1" sx={{ color: "#ff6a88" }}>
                         <strong>Title</strong>
                       </Typography>
-                    </StyledTableCell>
-                    <StyledTableCell>
-                      <Typography variant="subtitle1">
-                        <strong>Type</strong>
-                      </Typography>
-                    </StyledTableCell>
-                    <StyledTableCell align="center">
-                      <Typography variant="subtitle1">
+                    </TableCell>
+                    {!isMobile && (
+                      <TableCell>
+                        <Typography variant="subtitle1" sx={{ color: "#ff6a88" }}>
+                          <strong>Type</strong>
+                        </Typography>
+                      </TableCell>
+                    )}
+                    <TableCell align="center">
+                      <Typography variant="subtitle1" sx={{ color: "#ff6a88" }}>
                         <strong>Actions</strong>
                       </Typography>
-                    </StyledTableCell>
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {favorites.map((fav) => (
                     <TableRow key={fav.id}>
-                      <StyledTableCell>{fav.document_title}</StyledTableCell>
-                      <StyledTableCell>{fav.document_type}</StyledTableCell>
-                      <StyledTableCell align="center">
+                      <TableCell>{fav.document_title}</TableCell>
+                      {!isMobile && <TableCell>{fav.document_type}</TableCell>}
+                      <TableCell align="center">
                         <Tooltip title="Open document">
                           <Button
                             variant="contained"
@@ -173,15 +157,7 @@ export const FavoritesList = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             startIcon={<OpenInNew />}
-                            sx={{
-                              marginRight: "8px",
-                              backgroundColor: "#ff6a88",
-                              color: "white",
-                              "&:hover": {
-                                backgroundColor: "#ff99ac",
-                                color: "white", // Esto mantendrá el texto blanco al hacer hover
-                              },
-                            }}
+                            sx={{ marginRight: "8px", backgroundColor: "#ff6a88", color: "white", "&:hover": { backgroundColor: "#ff99ac" } }}
                           >
                             Open
                           </Button>
@@ -191,7 +167,7 @@ export const FavoritesList = () => {
                             <Delete />
                           </IconButton>
                         </Tooltip>
-                      </StyledTableCell>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -201,5 +177,5 @@ export const FavoritesList = () => {
         </CardContent>
       </StyledCard>
     </Box>
-  )
-}
+  );
+};

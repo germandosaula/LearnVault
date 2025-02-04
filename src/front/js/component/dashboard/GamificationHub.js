@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { Box, Typography, LinearProgress, Avatar, Tooltip, Card } from "@mui/material"
+import { useMediaQuery, useTheme } from "@mui/material"
 import { styled } from "@mui/material/styles"
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents"
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
@@ -41,6 +42,8 @@ const LeaderboardCard = styled(Card)(({ theme }) => ({
 }))
 
 export const GamificationHub = () => {
+  const theme = useTheme()
+  const isMobile = useMediaQuery("(max-width: 900px)");
   const storedUser = localStorage.getItem("user")
   const user = storedUser ? JSON.parse(storedUser) : null
   const userId = user ? user.id : null
@@ -147,36 +150,40 @@ export const GamificationHub = () => {
     <Box sx={{ padding: 3 }}>
       <Box sx={{ display: "flex", alignItems: "center", marginBottom: 2 }}>
         <Box sx={{ position: "relative" }}>
-          <StarsIcon sx={{
-            position: "absolute",
-            top: -65,
-            left: -40,
-            fontSize: 90,
-            color: "#ff6a88",
-            transform: "rotate(-20deg)",
-            zIndex: 1000,
-            transition: "all 0.3s ease",
-            "&:hover": {
-              transform: "rotate(0deg) scale(1.05)",
-              color: "#ff9a8b",
-            },
-          }} />
+          {!isMobile && (
+            <StarsIcon
+              sx={{
+                position: "absolute",
+                top: -65,
+                left: -40,
+                fontSize: 100,
+                color: "#ff6a88",
+                transform: "rotate(-20deg)",
+                zIndex: 1000,
+                transition: "all 0.3s ease-in-out",
+                pointerEvents: "auto",
+                "&:hover": {
+                  transform: "rotate(0deg) scale(1.1)",
+                  color: "#ff99ac",
+                },
+              }}
+            />
+          )}
         </Box>
         <Box sx={{ flex: 1, textAlign: "center" }}>
-          <Typography variant="h4" fontWeight="bold">
+          <Typography variant="h4" fontWeight="bold" sx={{ color: "#ff6a88" }}>
             Level {isNaN(level) ? "0" : level}
           </Typography>
         </Box>
       </Box>
       <StyledLinearProgress variant="determinate" value={isNaN(progress) ? 0 : progress} />
-      <Typography variant="body1" sx={{ marginTop: 1, fontWeight: "bold" }}>
+      <Typography variant="body1" sx={{ marginTop: 1, fontWeight: "bold", color: "#ff6a88 !important" }}>
         {experience} XP
       </Typography>
-
       <Box sx={{ marginTop: 4 }}>
-        <Typography variant="h5" fontWeight="bold" sx={{ display: "flex", alignItems: "center", marginBottom: 2 }}>
+        <Typography variant="h5" fontWeight="bold" sx={{ display: "flex", alignItems: "center", marginBottom: 2, color: "#ff6a88" }}>
           <EmojiEventsIcon sx={{ marginRight: 1, color: "#ff6a88" }} />
-          Badges ({badges.length})
+          Badges
         </Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
           {badges.length > 0 ? (
@@ -194,7 +201,7 @@ export const GamificationHub = () => {
       </Box>
 
       <Box sx={{ marginTop: 4 }}>
-        <Box sx={{ display: "flex", alignItems: "center", marginBottom: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", marginBottom: 2, color: "#ff6a88" }}>
           <LeaderboardIcon sx={{ marginRight: 1, color: "#ff6a88" }} />
           <Typography variant="h5" fontWeight="bold">
             LeaderBoard
@@ -208,9 +215,9 @@ export const GamificationHub = () => {
                   <Typography variant="h6" sx={{ marginRight: 2, color: index < 3 ? "#ff6a88" : "inherit" }}>
                     {index + 1}.
                   </Typography>
-                  <Typography variant="body1">{user.username}</Typography>
+                  <Typography variant="body1" sx={{ color: "#ff6a88" }}>{user.username}</Typography>
                 </Box>
-                <Typography variant="body2" fontWeight="bold">
+                <Typography variant="body2" fontWeight="bold" sx={{ color: "#ff6a88" }}>
                   {user.points} XP
                 </Typography>
               </LeaderboardCard>
