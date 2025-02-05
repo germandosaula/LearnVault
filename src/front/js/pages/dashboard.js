@@ -388,7 +388,7 @@ export const Dashboard = () => {
             },
           }}
         >
-          <Outlet />
+          <Outlet key={location.pathname}/>
         </Box>
       </Box>
     </Box>
