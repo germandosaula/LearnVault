@@ -1,46 +1,35 @@
 import React, { useState, useEffect } from "react";
 import {
-    Paper,
     Box,
     Card,
     CardContent,
     CardMedia,
     Typography,
     Grid,
-    Button,
     Modal,
     IconButton,
     TextField,
     Select,
     MenuItem,
     Pagination,
+    Button
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/documents`;
-const FAVORITES_API_URL = `${process.env.BACKEND_URL}/api/favorites`;
+const FAVORITES_API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/favorites`;
 
 export const FavoritesSearch = () => {
-    const [documents, setDocuments] = useState([]);
+    const [favorites, setFavorites] = useState([]);
     const [filteredFavorites, setFilteredFavorites] = useState([]);
-    const [filteredDocuments, setFilteredDocuments] = useState([]);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [openModal, setOpenModal] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [category, setCategory] = useState("All");
-    const [subject, setSubject] = useState("All");
-    const [subjects, setSubjects] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 6;
-
-    const [isFavorite, setIsFavorite] = useState(false);
-    const [favorites, setFavorites] = useState([]);
-    useEffect(() => {
-        setFilteredFavorites([...favorites]);
-    }, [favorites]);
-    
+    const [subject, setSubject] = useState("All");
+    const [subjects, setSubjects] = useState([]);
 
     useEffect(() => {
         const fetchFavorites = async () => {
@@ -52,26 +41,24 @@ export const FavoritesSearch = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                if (response.ok) {
-                    const favoritesData = await response.json();
-                    if (!Array.isArray(favoritesData)) return;
+                if (!response.ok) throw new Error("Failed to fetch favorites");
 
-                    const documentsResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/documents`, {
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
+                const favoritesData = await response.json();
+                if (!Array.isArray(favoritesData)) return;
 
-                    if (!documentsResponse.ok) throw new Error("Failed to fetch documents");
+                const documentsResponse = await fetch(API_URL, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
 
-                    const allDocuments = await documentsResponse.json();
-                    const completeFavorites = allDocuments.filter((doc) =>
-                        favoritesData.some((fav) => fav.document_id === doc.id)
-                    );
+                if (!documentsResponse.ok) throw new Error("Failed to fetch documents");
 
-                    setFavorites(completeFavorites);
-                } else {
-                    console.error("Error fetching favorites:", response.statusText);
-                    setFavorites([]);
-                }
+                const allDocuments = await documentsResponse.json();
+                const completeFavorites = allDocuments.filter((doc) =>
+                    favoritesData.some((fav) => fav.document_id === doc.id)
+                );
+
+                setFavorites(completeFavorites);
+                setFilteredFavorites(completeFavorites);
             } catch (error) {
                 console.error("Error fetching favorites:", error);
                 setFavorites([]);
@@ -88,54 +75,46 @@ export const FavoritesSearch = () => {
         setFilteredFavorites(filtered);
     }, [searchQuery, favorites]);
 
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredFavorites.slice(indexOfFirstItem, indexOfLastItem);
+    const handleRemoveFavorite = async (doc) => {
+        if (!doc || !doc.id) return;
 
-    const [componentKey, setComponentKey] = useState(0);
+        try {
+            const token = localStorage.getItem("token");
 
-const handleRemoveFavorite = async (doc) => {
-    if (!doc || !doc.id) return;
+            const response = await fetch(FAVORITES_API_URL, {
+                method: "GET",
+                headers: { Authorization: `Bearer ${token}` },
+            });
 
-    try {
-        const token = localStorage.getItem("token");
+            if (!response.ok) throw new Error("Failed to fetch favorites");
 
-        const response = await fetch(FAVORITES_API_URL, {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-        });
+            const favoritesData = await response.json();
+            if (!Array.isArray(favoritesData)) return;
 
-        if (!response.ok) throw new Error("Failed to fetch favorites");
+            const favoriteToDelete = favoritesData.find((fav) => fav.document_id === doc.id);
 
-        const favoritesData = await response.json();
-        const favoriteToDelete = favoritesData.find((fav) => fav.document_id === doc.id);
+            if (!favoriteToDelete) {
+                console.error("❌ Favorite not found for document:", doc.id);
+                return;
+            }
 
-        if (!favoriteToDelete) {
-            console.error("❌ Favorite not found for document:", doc.id);
-            return;
+            const deleteResponse = await fetch(`${FAVORITES_API_URL}/${favoriteToDelete.id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!deleteResponse.ok) throw new Error("Failed to remove favorite");
+
+            console.log(`✅ Removed favorite ${favoriteToDelete.id} from API`);
+
+            setFavorites((prev) => prev.filter((fav) => fav.id !== favoriteToDelete.document_id));
+            setFilteredFavorites((prev) => prev.filter((fav) => fav.id !== favoriteToDelete.document_id));
+
+        } catch (error) {
+            console.error("🔥 Error removing favorite:", error);
         }
+    };
 
-        const deleteResponse = await fetch(`${FAVORITES_API_URL}/${favoriteToDelete.id}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!deleteResponse.ok) throw new Error("Failed to remove favorite");
-
-        // 🔥 Actualiza el estado para forzar un re-render
-        setFavorites((prev) => prev.filter((fav) => fav.document_id !== doc.id));
-        setFilteredFavorites((prev) => prev.filter((fav) => fav.document_id !== doc.id));
-        setComponentKey((prevKey) => prevKey + 1); // 🔥 Cambia la key para forzar re-render
-    } catch (error) {
-        console.error("Error removing favorite:", error);
-    }
-};    
-    
-    
-    useEffect(() => {
-        setFilteredFavorites([...favorites]);
-    }, [favorites]);
-    
     const handlePageChange = (event, value) => {
         setCurrentPage(value);
     };
@@ -143,10 +122,8 @@ const handleRemoveFavorite = async (doc) => {
     const handleOpenModal = (doc) => {
         console.log("Opening modal with document:", doc);
         if (!doc) return;
+
         setSelectedDocument(doc);
-        const favoriteExists = favorites.some((fav) => fav.id === doc.id || fav.document_id === doc.id);
-        setIsFavorite(favoriteExists);
-    
         setOpenModal(true);
     };
 
@@ -155,64 +132,13 @@ const handleRemoveFavorite = async (doc) => {
         setSelectedDocument(null);
     };
 
-    const handleAddFavorite = async () => {
-        if (!selectedDocument) return;
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredFavorites.slice(indexOfFirstItem, indexOfLastItem);
 
-        console.log("🛠️ Adding to favorites:", selectedDocument.id);
-
-        try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                console.error("❌ No authentication token found.");
-                return;
-            }
-
-            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/favorites`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ documents_id: selectedDocument.id }),
-            });
-
-            const data = await response.json();
-            console.log("🔍 Response from API:", data);
-
-            if (response.ok) {
-                console.log("✅ Favorite added successfully:", data);
-            } else {
-                console.error("❌ Failed to add favorite:", data.msg);
-            }
-        } catch (error) {
-            console.error("🔥 Error adding favorite:", error);
-        }
-    };
-    const checkIfFavorite = async (documentId) => {
-        try {
-            const token = localStorage.getItem("token");
-
-            const response = await fetch(FAVORITES_API_URL, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error("Error checking favorites");
-            }
-
-            const favorites = await response.json();
-            const isAlreadyFavorite = favorites.some((fav) => fav.document_id === documentId);
-            setIsFavorite(isAlreadyFavorite);
-        } catch (error) {
-            console.error("Error checking favorite:", error);
-        }
-    };
 
     return (
-        <Box key={componentKey}
+        <Box
             sx={{
                 borderRadius: 4,
                 padding: 3,
@@ -270,88 +196,63 @@ const handleRemoveFavorite = async (doc) => {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                    <Select
-                        value={subject}
-                        onChange={(e) => setSubject(e.target.value)}
-                        displayEmpty
-                        sx={{
-                            minWidth: 220,
-                            backgroundColor: "white",
-                            borderRadius: 6,
-                            boxShadow: "0px 6px 12px rgba(0, 0, 0, 0.1)",
-                            transition: "all 0.3s ease-in-out",
-                            "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "#ff6a88",
-                            },
-                            "&:hover .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "#ff6a88",
-                            },
-                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "#ff6a88",
-                                boxShadow: "0px 0px 12px rgba(255, 106, 136, 0.3)",
-                            },
-                        }}
-                    >
-                        <MenuItem value="All">All Subjects</MenuItem>
-                        {subjects.map((subj, index) => (
-                            <MenuItem key={index} value={subj}>
-                                {subj}
-                            </MenuItem>
-                        ))}
-                    </Select>
                 </Box>
+                {filteredFavorites.length === 0 && (
+                    <Typography variant="h6" sx={{ textAlign: "center", color: "#ff6a88", mt: 4 }}>
+                        No favorites found. Start adding some!
+                    </Typography>
+                )}
                 <Grid container spacing={3}>
-                    {filteredFavorites.map((doc) => {
-                        const isFavorite = favorites.some((fav) => fav.id === doc.id || fav.document_id === doc.id);
-
-                        return (
-                            <Grid item key={doc.id} xs={12} sm={6} md={4}>
-                                <Card sx={{ cursor: "pointer", boxShadow: 3, borderRadius: 2, position: "relative" }}>
-                                    <IconButton
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleRemoveFavorite(doc);
-                                        }}
-                                        sx={{
-                                            position: "absolute",
-                                            top: 8,
-                                            right: 8,
+                    {filteredFavorites.slice(indexOfFirstItem, indexOfLastItem).map((doc) => (
+                        <Grid item key={`${doc.id}-${favorites.length}`} xs={12} sm={6} md={4}>
+                            <Card sx={{ cursor: "pointer", boxShadow: 3, borderRadius: 2, position: "relative" }}>
+                                <IconButton
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRemoveFavorite(doc);
+                                    }}
+                                    sx={{
+                                        position: "absolute",
+                                        top: 8,
+                                        right: 8,
+                                        backgroundColor: "white",
+                                        borderRadius: "50%",
+                                        boxShadow: 2,
+                                        transition: "0.3s ease-in-out",
+                                        "&:hover": {
                                             backgroundColor: "white",
-                                            borderRadius: "50%",
-                                            boxShadow: 2,
-                                            transition: "0.3s ease-in-out",
-                                            "&:hover": {
-                                                backgroundColor: "white",
-                                                boxShadow: "0px 0px 10px rgba(255, 0, 0, 0.5)",
-                                                transform: "scale(1.1)",
-                                                opacity: 1,
-                                            },
-                                        }}
-                                    >
-                                        <FavoriteIcon color="error" />
-                                    </IconButton>
-                                    <CardMedia
-                                        component="img"
-                                        height="140"
-                                        image={doc.image_url || "https://via.placeholder.com/150"}
-                                        alt={doc.title}
-                                        onClick={() => handleOpenModal(doc)}
-                                    />
-                                    <CardContent onClick={() => handleOpenModal(doc)}>
-                                        <Typography variant="h6" sx={{ fontWeight: "bold", fontFamily: "'Poppins', sans-serif" }}>
-                                            {doc.title}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary" sx={{ fontFamily: "'Poppins', sans-serif" }}>
-                                            {doc.description}
-                                        </Typography>
-                                        <Typography variant="subtitle2" color="primary" sx={{ mt: 1, fontFamily: "'Poppins', sans-serif" }}>
-                                            📁 {doc.subject}
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        );
-                    })}
+                                            boxShadow: "0px 0px 10px rgba(255, 0, 0, 0.5)",
+                                            transform: "scale(1.1)",
+                                            opacity: 1,
+                                        },
+                                    }}
+                                >
+                                    <FavoriteIcon color="error" />
+                                </IconButton>
+
+                                <CardMedia
+                                    component="img"
+                                    height="140"
+                                    image={doc.image_url || "https://via.placeholder.com/150"}
+                                    alt={doc.title}
+                                    onClick={() => handleOpenModal(doc)}
+                                />
+
+                                <CardContent onClick={() => handleOpenModal(doc)}>
+                                    <Typography variant="h6" sx={{ fontWeight: "bold", fontFamily: "'Poppins', sans-serif" }}>
+                                        {doc.title}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ fontFamily: "'Poppins', sans-serif" }}>
+                                        {doc.description}
+                                    </Typography>
+                                    <Typography variant="subtitle2" color="primary" sx={{ mt: 1, fontFamily: "'Poppins', sans-serif" }}>
+                                        📁 {doc.subject}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ))}
+
                 </Grid>
                 <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
                     <Pagination
@@ -433,6 +334,7 @@ const handleRemoveFavorite = async (doc) => {
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleRemoveFavorite(selectedDocument);
+                                                            handleCloseModal();
                                                         }}
                                                         sx={{
                                                             display: "flex",

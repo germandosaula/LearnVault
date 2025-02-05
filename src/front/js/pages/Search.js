@@ -122,9 +122,11 @@ export const Search = () => {
     setCurrentPage(1);
   }, [searchQuery, category, subject, documents]);
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage);
+  const indexOfLastItem = Math.min(currentPage * itemsPerPage, filteredDocuments.length);
+  const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
   const currentItems = filteredDocuments.slice(indexOfFirstItem, indexOfLastItem);
+
 
   const handleToggleFavorite = async (doc) => {
     if (!doc || !doc.id) {
@@ -183,8 +185,10 @@ export const Search = () => {
   };
 
   const handlePageChange = (event, value) => {
-    setCurrentPage(value);
-  };
+    if (value >= 1 && value <= totalPages) {
+      setCurrentPage(value);
+    }
+  };  
 
   const handleOpenModal = (doc) => {
     console.log("Opening modal with document:", doc);
@@ -348,7 +352,7 @@ export const Search = () => {
 
 
         <Grid container spacing={3}>
-          {documents.map((doc) => {
+          {currentItems.map((doc) => {
             const isFavorite = favorites.some((fav) => fav.document_id === doc.id);
 
             return (
