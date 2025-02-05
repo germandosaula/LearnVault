@@ -393,14 +393,13 @@ def create_favorite():
 def get_favorites():
     try:
         current_user_id = get_jwt_identity()
-        print(f"🔍 User identity received: {current_user_id}")  # <-- Depuración
+        print(f"🔍 User identity received: {current_user_id}")
 
-        # Asegurar que `current_user_id` es un número obteniendo el ID real del usuario
         user = User.query.filter_by(email=current_user_id).first()
         if not user:
             return jsonify({"msg": "Usuario no encontrado"}), 404
 
-        favorites = Favorites.query.filter_by(user_id=user.id).all()  # <-- Usar `user.id`
+        favorites = Favorites.query.filter_by(user_id=user.id).all()
 
         if not favorites:
             return jsonify({"message": "No hay favoritos"}), 200
@@ -409,14 +408,16 @@ def get_favorites():
             "id": fav.id,
             "document_id": fav.documents.id,
             "document_title": fav.documents.title,
-            "document_type": fav.documents.type
+            "document_type": fav.documents.type,
+            "image_url": fav.documents.image_url  # 🔥 Agregamos la imagen
         } for fav in favorites]
 
         return jsonify(result), 200
 
     except Exception as e:
-        print(f"❌ Error interno: {e}")  # <-- Depuración
+        print(f"❌ Error interno: {e}")
         return jsonify({"error": "Error interno", "message": str(e)}), 500
+
 
 @api.route('/favorites/<int:id>', methods=['DELETE'])
 @jwt_required()
