@@ -185,28 +185,31 @@ def handle_delete_user(id):
     return jsonify({}), 204
 
 @api.route('/user/<int:id>', methods=['PUT'])
-@jwt_required() 
+@jwt_required()
 def handle_update_user(id):
-    current_user = get_jwt_identity()
+    try:
+        current_user_email = get_jwt_identity()
+        user = User.query.filter_by(email=current_user_email).first()
 
-    user = User.query.get(id)
+        if user is None:
+            return jsonify({'msg': 'User not found'}), 404
 
-    if user is None:
-        return jsonify({'msg': 'User not found'}), 404
+        body = request.get_json()
+        if not body:
+            return jsonify({'msg': 'Missing JSON body'}), 400
 
-    if user.id != int(current_user) and current_user != "admin":
-        return jsonify({'msg': 'Permission denied'}), 403
+        if "username" in body:
+            user.username = body["username"]
+        if "email" in body:
+            user.email = body["email"]
 
-    body = request.get_json()
+        db.session.commit()
+        return jsonify(user.serialize()), 200
 
-    if "username" in body:
-        user.username = body["username"]
-    if "email" in body:
-        user.email = body["email"]
+    except Exception as e:
+        print(f"❌ Error: {str(e)}")
+        return jsonify({'error': 'Internal Server Error', 'message': str(e)}), 500
 
-    db.session.commit()
-
-    return jsonify(user.serialize()), 200
 
 @api.route('/dashboard', methods=['GET'])
 @jwt_required()
