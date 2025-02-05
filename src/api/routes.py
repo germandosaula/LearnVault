@@ -624,7 +624,7 @@ def get_achievements():
         # Lista de logros desbloqueados
         unlocked = [ach for ach in [3, 5, 10, 15, 30] if days_logged >= ach]
 
-        return jsonify(unlocked), 200  # 🔹 Devuelve JSON correctamente
+        return jsonify(unlocked), 200 
 
     except Exception as e:
         print(f"Error en /achievements: {e}")  # 🔍 Log para ver errores en la terminal
