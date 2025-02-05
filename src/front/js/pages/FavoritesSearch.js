@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { TypingEffect } from "../component/dashboard/TypingEffect";
 
 const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/documents`;
 const FAVORITES_API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/favorites`;
@@ -150,9 +151,9 @@ export const FavoritesSearch = () => {
             }}
         >
             <Box sx={{ p: 3 }}>
-                <Typography variant="h4" sx={{ mb: 3, textAlign: "center", fontFamily: "'Poppins', sans-serif", fontWeight: "bold", color: "#ff6a88" }}>
-                    My Favorite Resources
-                </Typography>
+                <Box sx={{ display: "flex", justifyContent: "center", }}>
+                    <TypingEffect text="My Favourite Resources" speed={80} />
+                </Box>
 
                 <Box
                     sx={{

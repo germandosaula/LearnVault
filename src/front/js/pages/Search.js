@@ -18,6 +18,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { TypingEffect } from "../component/dashboard/TypingEffect";
 
 // API Flask URL
 const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/documents`;
@@ -188,7 +189,7 @@ export const Search = () => {
     if (value >= 1 && value <= totalPages) {
       setCurrentPage(value);
     }
-  };  
+  };
 
   const handleOpenModal = (doc) => {
     console.log("Opening modal with document:", doc);
@@ -273,9 +274,9 @@ export const Search = () => {
       }}
     >
       <Box sx={{ p: 3 }}>
-        <Typography variant="h4" sx={{ mb: 3, textAlign: "center", fontFamily: "'Poppins', sans-serif", fontWeight: "bold", color: "#ff6a88" }}>
-          LearnVault Resources
-        </Typography>
+        <Box sx={{ display: "flex", justifyContent: "center", }}>
+          <TypingEffect text="LearnVault Resources" speed={80} />
+        </Box>
 
         <Box
           sx={{
