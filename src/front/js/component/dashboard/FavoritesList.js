@@ -88,8 +88,8 @@ export const FavoritesList = () => {
           <Favorite
             sx={{
               position: "absolute",
-              top: -35,
-              left: -16,
+              top: -5,
+              left: -0,
               fontSize: 100,
               color: "#ff6a88",
               transform: "rotate(-20deg)",
@@ -106,7 +106,7 @@ export const FavoritesList = () => {
       </Box>
       <StyledCard>
         <Box sx={{ flex: 1, textAlign: "center" }}>
-          <Typography variant="h5" fontWeight="bold" sx={{ color: "#ff6a88" }}>
+          <Typography variant="h5" fontWeight="bold" sx={{ color: "#ff6a88", paddingTop: "24px" }}>
             Favorite Resources
           </Typography>
         </Box>

@@ -147,7 +147,7 @@ export const GamificationHub = () => {
   }
 
   return (
-    <Box sx={{ padding: 3 }}>
+    <Box sx={{ padding: 3,}}>
       <Box sx={{ display: "flex", alignItems: "center", marginBottom: 2 }}>
         <Box sx={{ position: "relative" }}>
           {!isMobile && (
@@ -155,7 +155,7 @@ export const GamificationHub = () => {
               sx={{
                 position: "absolute",
                 top: -65,
-                left: -40,
+                left: -20,
                 fontSize: 100,
                 color: "#ff6a88",
                 transform: "rotate(-20deg)",
@@ -170,7 +170,7 @@ export const GamificationHub = () => {
             />
           )}
         </Box>
-        <Box sx={{ flex: 1, textAlign: "center" }}>
+        <Box sx={{ flex: 1, textAlign: "center", paddingTop: "50px" }}>
           <Typography variant="h4" fontWeight="bold" sx={{ color: "#ff6a88" }}>
             Level {isNaN(level) ? "0" : level}
           </Typography>
