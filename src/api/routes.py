@@ -264,13 +264,14 @@ def login_user():
     user_data = {
         "id": user.id,
         "email": user.email,
-        "username": user.username
+        "username": user.username,
+        "avatar": user.avatar
     }
 
     return jsonify({
         "msg": "Inicio de sesión exitoso",
         "token": token,
-        "user": user_data
+        "user": user_data,
     }), 200
 ## CRUD Documents:
 @api.route('/documents', methods=['POST'])
@@ -797,6 +798,45 @@ def complete_action(user_id):
         response["badge_unlocked"] = badge_unlocked.name
 
     return jsonify(response), 200
+
+@api.route('/user/avatar', methods=['PUT'])
+@jwt_required()
+def update_avatar():
+    user_email = get_jwt_identity()
+    user = User.query.filter_by(email=user_email).first()
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    data = request.get_json()
+    new_avatar_url = data.get("avatar_url")
+
+    if not new_avatar_url:
+        return jsonify({"msg": "No avatar URL provided"}), 400
+
+    user.avatar = new_avatar_url
+    db.session.commit()
+
+    return jsonify({"msg": "Avatar updated successfully", "avatar": user.avatar}), 200
+
+@api.route('/user/<int:id>', methods=['GET'])
+@jwt_required()
+def get_user(id):
+    try:
+        user = User.query.get(id)
+
+        if not user:
+            return jsonify({"msg": "Usuario no encontrado"}), 404
+
+        return jsonify({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "avatar": user.avatar
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": "Error interno", "message": str(e)}), 500
 
 
 # ------------------- INIT DATABASE -------------------
