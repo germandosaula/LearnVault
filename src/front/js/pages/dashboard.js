@@ -12,7 +12,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Context } from "../store/appContext"
 import { useNavigate, Outlet, useLocation } from "react-router-dom"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -44,6 +44,7 @@ export const Dashboard = () => {
   const userId = localStorage.getItem("userId")
   const storedUser = localStorage.getItem("user")
   const user = storedUser ? JSON.parse(storedUser) : null
+  const isNotDashboard = location.pathname !== "/dashboard"
 
   useEffect(() => {
     if (!store.token || !store.user?.id) {
@@ -240,22 +241,22 @@ export const Dashboard = () => {
 
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 2 }}>
-          <IconButton onClick={() => document.getElementById("avatarUpload").click()} sx={{ cursor: "pointer" }}>
-            <Avatar
-              src={userData?.avatar || "https://images.squarespace-cdn.com/content/v1/54b7b93ce4b0a3e130d5d232/1519986430884-H1GYNRLHN0VFRF6W5TAN/icon.png?format=750w"}
-              sx={{ width: 80, height: 80, mb: 2 }}
+            <IconButton onClick={() => document.getElementById("avatarUpload").click()} sx={{ cursor: "pointer" }}>
+              <Avatar
+                src={userData?.avatar || "https://images.squarespace-cdn.com/content/v1/54b7b93ce4b0a3e130d5d232/1519986430884-H1GYNRLHN0VFRF6W5TAN/icon.png?format=750w"}
+                sx={{ width: 80, height: 80, mb: 2 }}
+              />
+            </IconButton>
+            <input
+              type="file"
+              id="avatarUpload"
+              style={{ display: "none" }}
+              accept="image/*"
+              onChange={handleAvatarChange}
             />
-          </IconButton>
-          <input
-            type="file"
-            id="avatarUpload"
-            style={{ display: "none" }}
-            accept="image/*"
-            onChange={handleAvatarChange}
-          />
-          <Typography variant="h6">{userData?.username || "No Name"}</Typography>
-          <Typography variant="body2">{userData?.email || "No Email"}</Typography>
-        </Box>
+            <Typography variant="h6">{userData?.username || "No Name"}</Typography>
+            <Typography variant="body2">{userData?.email || "No Email"}</Typography>
+          </Box>
           <Button
             onClick={handleOpenModal}
             sx={{
@@ -276,10 +277,20 @@ export const Dashboard = () => {
             <EditIcon fontSize="small" />
           </Button>
         </Box>
+        <AnimatePresence>
+          {isNotDashboard && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Divider sx={{ my: 3 }} />
+              <PomodoroWidget />
+            </motion.div>
+          )}
+        </AnimatePresence>
         <Divider sx={{ my: 3 }} />
-        <PomodoroWidget />
-        <Divider sx={{ my: 3 }} />
-
         <Button
           startIcon={<DashboardIcon />}
           onClick={() => {
@@ -436,7 +447,7 @@ export const Dashboard = () => {
             },
           }}
         >
-          <Outlet key={location.pathname}/>
+          <Outlet key={location.pathname} />
         </Box>
       </Box>
     </Box>
