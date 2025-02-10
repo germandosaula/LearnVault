@@ -38,10 +38,6 @@ const Layout = () => {
     borderRadius: "16px",
     boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
     transition: "all 0.3s ease-in-out",
-    "&:hover": {
-      transform: "translateY(-5px)",
-      boxShadow: "0 8px 30px rgba(0, 0, 0, 0.15)",
-    },
   }
   const { store } = useContext(Context);
   const isLoggedIn = !!store.token;
