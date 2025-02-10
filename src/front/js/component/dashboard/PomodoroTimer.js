@@ -29,7 +29,7 @@ export const PomodoroTimer = React.memo(() => {
     useEffect(() => {
         if (timeLeft <= 0 && isRunning) {
             setIsRunning(false);
-    
+
             if (notificationsEnabled) {
                 toast.info("Time's up!");
             }
@@ -44,7 +44,7 @@ export const PomodoroTimer = React.memo(() => {
             }, 1000);
         }
     }, [timeLeft, notificationsEnabled, soundEnabled, isRunning]);
-    
+
 
     const changeMode = () => {
         const nextMode = mode === "focus"
@@ -53,8 +53,8 @@ export const PomodoroTimer = React.memo(() => {
 
         setMode(nextMode);
         setTimeLeft(
-            nextMode === "focus" ? focusTime * 60 : 
-            nextMode === "shortBreak" ? shortBreakTime * 60 : longBreakTime * 60
+            nextMode === "focus" ? focusTime * 60 :
+                nextMode === "shortBreak" ? shortBreakTime * 60 : longBreakTime * 60
         );
         if (nextMode === "focus") setSessionCount(prev => prev + 1);
     };
@@ -62,9 +62,9 @@ export const PomodoroTimer = React.memo(() => {
     const { steps, stepIcons, activeStep } = useMemo(() => {
         const stepsList = ["Focus Mind", "Short Break", "Focus Max", "Long Break"];
         const icons = [<Timer />, <Coffee />, <Timer />, <Bedtime />];
-        const currentStep = mode === "focus" && sessionCount % 2 === 0 ? 0 : 
-                            mode === "shortBreak" ? 1 : 
-                            mode === "focus" && sessionCount % 2 === 1 ? 2 : 3;
+        const currentStep = mode === "focus" && sessionCount % 2 === 0 ? 0 :
+            mode === "shortBreak" ? 1 :
+                mode === "focus" && sessionCount % 2 === 1 ? 2 : 3;
         return { steps: stepsList, stepIcons: icons, activeStep: currentStep };
     }, [mode, sessionCount]);
     return (
@@ -173,43 +173,55 @@ export const PomodoroTimer = React.memo(() => {
                             margin="dense" variant="outlined" inputProps={{
                                 min: 0,
                                 style: {
-                                  textAlign: "center",
-                                  WebkitAppearance: "none",
-                                  MozAppearance: "textfield",
+                                    textAlign: "center",
+                                    WebkitAppearance: "none",
+                                    MozAppearance: "textfield",
                                 },
-                              }}
-                            sx={{ backgroundColor: "#ff6a88", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': { textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
-                WebkitAppearance: "none",
-                margin: 0,
-              }, } }}
+                            }}
+                            sx={{
+                                backgroundColor: "#ff6a88", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': {
+                                    textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
+                                        WebkitAppearance: "none",
+                                        margin: 0,
+                                    },
+                                }
+                            }}
                         />
                         <TextField type="number" fullWidth value={shortBreakTime} onChange={(e) => setShortBreakTime(Number(e.target.value))}
                             margin="dense" variant="outlined" inputProps={{
                                 min: 0,
                                 style: {
-                                  textAlign: "center",
-                                  WebkitAppearance: "none",
-                                  MozAppearance: "textfield",
+                                    textAlign: "center",
+                                    WebkitAppearance: "none",
+                                    MozAppearance: "textfield",
                                 },
-                              }}
-                            sx={{ backgroundColor: "#ff9a8b", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': { textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
-                WebkitAppearance: "none",
-                margin: 0,
-              }, } }}
+                            }}
+                            sx={{
+                                backgroundColor: "#ff9a8b", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': {
+                                    textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
+                                        WebkitAppearance: "none",
+                                        margin: 0,
+                                    },
+                                }
+                            }}
                         />
                         <TextField type="number" fullWidth value={longBreakTime} onChange={(e) => setLongBreakTime(Number(e.target.value))}
                             margin="dense" variant="outlined" inputProps={{
                                 min: 0,
                                 style: {
-                                  textAlign: "center",
-                                  WebkitAppearance: "none",
-                                  MozAppearance: "textfield",
+                                    textAlign: "center",
+                                    WebkitAppearance: "none",
+                                    MozAppearance: "textfield",
                                 },
-                              }}
-                            sx={{ backgroundColor: "#64B5F6", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': { textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
-                WebkitAppearance: "none",
-                margin: 0,
-              }, } }}
+                            }}
+                            sx={{
+                                backgroundColor: "#64B5F6", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': {
+                                    textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
+                                        WebkitAppearance: "none",
+                                        margin: 0,
+                                    },
+                                }
+                            }}
                         />
                         <FormControlLabel
                             control={<Switch checked={soundEnabled} onChange={(e) => setSoundEnabled(e.target.checked)}
@@ -228,7 +240,22 @@ export const PomodoroTimer = React.memo(() => {
                     </DialogContent>
                     <Divider />
                     <DialogActions>
-                        <Button onClick={() => setOpenSettings(false)} variant="contained" sx={{ backgroundColor: "#ff6a88", color: "#fff" }}>Save</Button>
+                        <Button
+                            onClick={() => {
+                                const newTime =
+                                    mode === "focus" ? focusTime * 60 : mode === "shortBreak" ? shortBreakTime * 60 : longBreakTime * 60
+
+                                setTimeLeft(newTime)
+
+                                setIsRunning(true)
+
+                                setOpenSettings(false)
+                            }}
+                            variant="contained"
+                            sx={{ backgroundColor: "#ff6a88", color: "#fff" }}
+                        >
+                            Save
+                        </Button>
                     </DialogActions>
                 </Dialog>
                 <ToastContainer />
