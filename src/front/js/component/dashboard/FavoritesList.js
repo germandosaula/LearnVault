@@ -21,6 +21,7 @@ import {
 import { ArrowForwardIos, OpenInNew, Delete, Favorite } from "@mui/icons-material"
 import { styled } from "@mui/material/styles"
 import { useNavigate } from "react-router-dom"
+import { TypingEffect } from "../dashboard/TypingEffect";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   width: "100%",
@@ -32,6 +33,9 @@ const StyledCard = styled(Card)(({ theme }) => ({
   transition: "all 0.3s ease-in-out",
   "&:hover": {
     transform: "translateY(-5px)",
+  },
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(1),
   },
 }))
 
@@ -45,12 +49,34 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
     transform: "scale(1.02)",
   },
   transition: "all 0.3s ease-in-out",
+  [theme.breakpoints.down("sm")]: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    padding: theme.spacing(1),
+  },
+}))
+
+const StyledListItemText = styled(ListItemText)(({ theme }) => ({
+  [theme.breakpoints.down("sm")]: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+  },
+}))
+
+const ActionButtons = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+    justifyContent: "space-between",
+    marginTop: theme.spacing(1),
+  },
 }))
 
 export const FavoritesList = () => {
   const navigate = useNavigate()
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"))
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
   const [favorites, setFavorites] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -92,29 +118,29 @@ export const FavoritesList = () => {
     }
   }
 
-  const handleOpenDocument = (src_url) => {
-    if (src_url) {
-      window.open(src_url, "_blank", "noopener,noreferrer")
-    } else {
-      setError("No se puede abrir el documento. URL no disponible.")
+  const handleOpenDocument = (url) => {
+    if (!url) return;
+    const newTab = window.open(url, "_blank");
+    if (!newTab) {
+      alert("Pop-up blocked! Please allow pop-ups for this site.");
     }
-  }
+  };
+
+  useEffect(() => {
+    console.log("Favorites:", favorites); // Verifica el array de favoritos
+  }, [favorites]);
 
   return (
     <Box sx={{ position: "relative", width: "100%" }}>
-      <Box sx={{ position: "relative" }}>
-      </Box>
       <StyledCard>
-        <Box sx={{ flex: 1, textAlign: "center", overflow: "hidden" }}>
-          <Typography variant="h5" fontWeight="bold" sx={{ color: theme.palette.primary.main, paddingTop: "24px" }}>
-            Favorite Resources
-          </Typography>
+        <Box sx={{ display: "flex", justifyContent: "center", }}>
+          <TypingEffect text="My Favourite Resources" speed={80} />
         </Box>
         <CardContent
           sx={{
             mb: 0,
             pb: 0,
-            maxHeight: 400,
+            maxHeight: { xs: 300, sm: 400 },
             overflowY: "auto",
             "&::-webkit-scrollbar": { width: 6 },
             "&::-webkit-scrollbar-thumb": {
@@ -141,52 +167,58 @@ export const FavoritesList = () => {
             <List sx={{ width: "100%", bgcolor: "background.paper", borderRadius: theme.shape.borderRadius }}>
               {favorites.map((fav, index) => (
                 <React.Fragment key={fav.id}>
-                  <StyledListItem
-                    secondaryAction={
-                      <>
-                        <Tooltip title={fav.src_url ? "Open document" : "URL not available"}>
-                          <span>
-                            <IconButton
-                              edge="end"
-                              onClick={() => handleOpenDocument(fav.src_url)}
-                              disabled={!fav.src_url}
-                              sx={{ mr: 1 }}
-                            >
-                              <OpenInNew />
-                            </IconButton>
-                          </span>
-                        </Tooltip>
-                        <IconButton edge="end" onClick={() => handleDeleteFavorite(fav.id)} sx={{ mr: 1 }}>
-                          <Delete />
-                        </IconButton>
-                        <IconButton edge="end" onClick={() => navigate(`/dashboard/favorites/${fav.id}`)}>
-                          <ArrowForwardIos />
-                        </IconButton>
-                      </>
-                    }
-                  >
-                    <ListItemAvatar>
-                      <Avatar
-                        src={
-                          fav.image_url ||
-                          "https://e00-elmundo.uecdn.es/assets/multimedia/imagenes/2021/12/22/16401922123443.jpg"
+                  <StyledListItem>
+                    <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
+                      <ListItemAvatar>
+                        <Avatar
+                          src={
+                            fav.image_url ||
+                            "https://e00-elmundo.uecdn.es/assets/multimedia/imagenes/2021/12/22/16401922123443.jpg"
+                          }
+                          sx={{
+                            width: { xs: 40, sm: 48 },
+                            height: { xs: 40, sm: 48 },
+                            borderRadius: theme.shape.borderRadius
+                          }}
+                          variant="rounded"
+                        />
+                      </ListItemAvatar>
+                      <StyledListItemText
+                        primary={
+                          <Typography variant="subtitle1" fontWeight="bold" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
+                            {fav.document_title}
+                          </Typography>
                         }
-                        sx={{ width: 48, height: 48, borderRadius: theme.shape.borderRadius }}
-                        variant="rounded"
+                        secondary={
+                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+                            {fav.document_type}
+                          </Typography>
+                        }
                       />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          {fav.document_title}
-                        </Typography>
-                      }
-                      secondary={
-                        <Typography variant="body2" color="text.secondary">
-                          {fav.document_type}
-                        </Typography>
-                      }
-                    />
+                    </Box>
+                    <ActionButtons>
+                      <Tooltip title={fav.src_url ? "Open document" : "URL not available"}>
+                        <span>
+                          <IconButton
+                            edge="end"
+                            onClick={() => {
+                              console.log("Opening URL:", fav.src_url);
+                              handleOpenDocument(fav.src_url);
+                            }}
+                            disabled={!fav.src_url}
+                            sx={{ mr: 1 }}
+                          >
+                            <OpenInNew />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                      <IconButton edge="end" onClick={() => handleDeleteFavorite(fav.id)} sx={{ mr: 1 }}>
+                        <Delete />
+                      </IconButton>
+                      <IconButton edge="end" onClick={() => navigate(`/dashboard/favorites/`)}>
+                        <ArrowForwardIos />
+                      </IconButton>
+                    </ActionButtons>
                   </StyledListItem>
                   {index < favorites.length - 1 && <Divider sx={{ my: 1 }} />}
                 </React.Fragment>

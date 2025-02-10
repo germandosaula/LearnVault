@@ -73,7 +73,6 @@ export const PomodoroTimer = React.memo(() => {
             p={3}
             borderRadius={3}
             boxShadow={5}
-            maxWidth={600}
             sx={{
                 backgroundColor: mode === "focus" ? "#ff6a88" : mode === "shortBreak" ? "#ff9a8b" : "#64B5F6",
                 color: "#fff",

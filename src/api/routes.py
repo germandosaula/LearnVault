@@ -413,7 +413,8 @@ def get_favorites():
             "document_id": fav.documents.id,
             "document_title": fav.documents.title,
             "document_type": fav.documents.type,
-            "image_url": fav.documents.image_url  # 🔥 Agregamos la imagen
+            "image_url": fav.documents.image_url,
+            "src_url": fav.documents.src_url,
         } for fav in favorites]
 
         return jsonify(result), 200
