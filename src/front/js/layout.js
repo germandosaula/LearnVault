@@ -5,11 +5,12 @@ import { BackendURL } from "./component/backendURL";
 import { Context } from "./store/appContext";
 import injectContext from "./store/appContext";
 import { Box, useMediaQuery, useTheme } from "@mui/material"
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import { Home } from "./pages/home";
 import { Dashboard } from "./pages/dashboard";
 import { LoginSignUp } from "./pages/login-signup";
-import { GamificationHub } from "./component/dashboard/GamificationHub";
+import { PomodoroTimer } from "./component/dashboard/PomodoroTimer";
 import { UploadFile } from "./component/dashboard/UploadFile";
 import { Search } from "./pages/Search";
 import { FavoritesList } from "./component/dashboard/FavoritesList";
@@ -17,9 +18,19 @@ import { KanbanBoard } from "./component/dashboard/KanbanBoard";
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
 import { FavoritesSearch } from "./pages/FavoritesSearch"
+import { PomodoroProvider } from "./component/dashboard/PomodoroContext";
 
 const Layout = () => {
-  const theme = useTheme()
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: '#ff2259', // Rojo para el color principal
+      },
+      secondary: {
+        main: '#38b12e', // Verde para los pasos completados
+      },
+    },
+  });
   const isMobile = useMediaQuery("(max-width: 768px)");
   const commonBoxStyles = {
     background: "linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%)",
@@ -39,6 +50,8 @@ const Layout = () => {
 
   return (
     <BrowserRouter>
+     <ThemeProvider theme={theme}>
+    <PomodoroProvider>
       <ScrollToTop>
         <ConditionalNavbar isLoggedIn={isLoggedIn} />
 
@@ -57,15 +70,7 @@ const Layout = () => {
                     gap: 2,
                   }}
                 >
-                  <Box
-                    sx={{
-                      ...commonBoxStyles,
-                      flex: 1,
-                      width: isMobile ? "100%" : "auto",
-                    }}
-                  >
-                    <GamificationHub />
-                  </Box>
+                    <PomodoroTimer />
 
                   <Box
                     sx={{
@@ -102,6 +107,8 @@ const Layout = () => {
 
         <Footer />
       </ScrollToTop>
+      </PomodoroProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 };

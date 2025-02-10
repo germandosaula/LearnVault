@@ -25,6 +25,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite"
 import DashboardIcon from "@mui/icons-material/Dashboard"
 import EditIcon from "@mui/icons-material/Edit"
 import LogoutIcon from "@mui/icons-material/Logout"
+import { PomodoroWidget } from "../component/dashboard/PomodoroWidget"
 
 export const Dashboard = () => {
   const { store, actions } = useContext(Context)
@@ -275,7 +276,8 @@ export const Dashboard = () => {
             <EditIcon fontSize="small" />
           </Button>
         </Box>
-
+        <Divider sx={{ my: 3 }} />
+        <PomodoroWidget />
         <Divider sx={{ my: 3 }} />
 
         <Button
