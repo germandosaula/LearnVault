@@ -9,6 +9,7 @@ import { usePomodoro } from "./PomodoroContext";
 import { PomodoroStepper } from "./PomodoroSteeper";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import PomoAlert from "../../../files/PomoAlert.mp3"
 
 export const PomodoroTimer = React.memo(() => {
     const {
@@ -28,10 +29,22 @@ export const PomodoroTimer = React.memo(() => {
     useEffect(() => {
         if (timeLeft <= 0 && isRunning) {
             setIsRunning(false);
-            if (notificationsEnabled) toast.info("Time's up!");
-            if (soundEnabled) new Audio("/files/PomoAlert.mp3").play();
+    
+            if (notificationsEnabled) {
+                toast.info("Time's up!");
+            }
+            if (soundEnabled) {
+                const audio = new Audio(PomoAlert);
+                audio.play();
+            }
+
+            setTimeout(() => {
+                changeMode();
+                setIsRunning(true);
+            }, 1000);
         }
-    }, [timeLeft, isRunning, notificationsEnabled, soundEnabled]);
+    }, [timeLeft, notificationsEnabled, soundEnabled, isRunning]);
+    
 
     const changeMode = () => {
         const nextMode = mode === "focus"
@@ -157,16 +170,46 @@ export const PomodoroTimer = React.memo(() => {
                     <Divider />
                     <DialogContent>
                         <TextField type="number" fullWidth value={focusTime} onChange={(e) => setFocusTime(Number(e.target.value))}
-                            margin="dense" variant="outlined"
-                            sx={{ backgroundColor: "#ff6a88", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': { textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' } }}
+                            margin="dense" variant="outlined" inputProps={{
+                                min: 0,
+                                style: {
+                                  textAlign: "center",
+                                  WebkitAppearance: "none",
+                                  MozAppearance: "textfield",
+                                },
+                              }}
+                            sx={{ backgroundColor: "#ff6a88", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': { textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
+                WebkitAppearance: "none",
+                margin: 0,
+              }, } }}
                         />
                         <TextField type="number" fullWidth value={shortBreakTime} onChange={(e) => setShortBreakTime(Number(e.target.value))}
-                            margin="dense" variant="outlined"
-                            sx={{ backgroundColor: "#ff9a8b", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': { textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' } }}
+                            margin="dense" variant="outlined" inputProps={{
+                                min: 0,
+                                style: {
+                                  textAlign: "center",
+                                  WebkitAppearance: "none",
+                                  MozAppearance: "textfield",
+                                },
+                              }}
+                            sx={{ backgroundColor: "#ff9a8b", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': { textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
+                WebkitAppearance: "none",
+                margin: 0,
+              }, } }}
                         />
                         <TextField type="number" fullWidth value={longBreakTime} onChange={(e) => setLongBreakTime(Number(e.target.value))}
-                            margin="dense" variant="outlined"
-                            sx={{ backgroundColor: "#64B5F6", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': { textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)' } }}
+                            margin="dense" variant="outlined" inputProps={{
+                                min: 0,
+                                style: {
+                                  textAlign: "center",
+                                  WebkitAppearance: "none",
+                                  MozAppearance: "textfield",
+                                },
+                              }}
+                            sx={{ backgroundColor: "#64B5F6", borderRadius: 2, border: "none", '& fieldset': { border: 'none' }, '& input': { textAlign: 'center', color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
+                WebkitAppearance: "none",
+                margin: 0,
+              }, } }}
                         />
                         <FormControlLabel
                             control={<Switch checked={soundEnabled} onChange={(e) => setSoundEnabled(e.target.checked)}
