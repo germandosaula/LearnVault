@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useEffect, useState, useCallback } from "react"
 import {
   Box,
@@ -15,13 +17,12 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-  Fade,
   Tooltip,
 } from "@mui/material"
-import { ArrowForwardIos, OpenInNew, Delete, Favorite } from "@mui/icons-material"
+import { ArrowForwardIos, OpenInNew, Delete } from "@mui/icons-material"
 import { styled } from "@mui/material/styles"
 import { useNavigate } from "react-router-dom"
-import { TypingEffect } from "../dashboard/TypingEffect";
+import { TypingEffect } from "../dashboard/TypingEffect"
 
 const StyledCard = styled(Card)(({ theme }) => ({
   width: "100%",
@@ -119,40 +120,42 @@ export const FavoritesList = () => {
   }
 
   const handleOpenDocument = (url) => {
-    if (!url) return;
-    const newTab = window.open(url, "_blank");
+    if (!url) return
+    const newTab = window.open(url, "_blank")
     if (!newTab) {
-      alert("Pop-up blocked! Please allow pop-ups for this site.");
+      alert("Pop-up blocked! Please allow pop-ups for this site.")
     }
-  };
+  }
 
   useEffect(() => {
-    console.log("Favorites:", favorites); // Verifica el array de favoritos
-  }, [favorites]);
+    console.log("Favorites:", favorites) // Verifica el array de favoritos
+  }, [favorites])
 
   return (
     <Box sx={{ position: "relative", width: "100%" }}>
       <StyledCard>
-        <Box sx={{ display: "flex", justifyContent: "center", }}>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
           <TypingEffect text="My Favourite Resources" speed={80} />
         </Box>
         <CardContent
           sx={{
             mb: 0,
             pb: 0,
-            maxHeight: { xs: 300, sm: 400 },
+            height: { xs: 300, sm: 310 },
             overflowY: "auto",
-            "&::-webkit-scrollbar": { width: 6 },
-            "&::-webkit-scrollbar-thumb": {
-              backgroundColor: theme.palette.primary.light,
-              borderRadius: 3,
-            },
-            "&::-webkit-scrollbar-track": {
+            "&::-webkit-scrollbar": {
+              width: "8px",
               backgroundColor: "transparent",
             },
-            "&:hover::-webkit-scrollbar-thumb": {
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: theme.palette.primary.light,
+              borderRadius: "4px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
               backgroundColor: theme.palette.primary.main,
             },
+            maskImage: "linear-gradient(to bottom, black 85%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 85%, transparent 100%)",
           }}
         >
           {loading ? (
@@ -178,19 +181,27 @@ export const FavoritesList = () => {
                           sx={{
                             width: { xs: 40, sm: 48 },
                             height: { xs: 40, sm: 48 },
-                            borderRadius: theme.shape.borderRadius
+                            borderRadius: theme.shape.borderRadius,
                           }}
                           variant="rounded"
                         />
                       </ListItemAvatar>
                       <StyledListItemText
                         primary={
-                          <Typography variant="subtitle1" fontWeight="bold" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
+                          <Typography
+                            variant="subtitle1"
+                            fontWeight="bold"
+                            sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
+                          >
                             {fav.document_title}
                           </Typography>
                         }
                         secondary={
-                          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" } }}
+                          >
                             {fav.document_type}
                           </Typography>
                         }
@@ -202,8 +213,8 @@ export const FavoritesList = () => {
                           <IconButton
                             edge="end"
                             onClick={() => {
-                              console.log("Opening URL:", fav.src_url);
-                              handleOpenDocument(fav.src_url);
+                              console.log("Opening URL:", fav.src_url)
+                              handleOpenDocument(fav.src_url)
                             }}
                             disabled={!fav.src_url}
                             sx={{ mr: 1 }}
@@ -230,3 +241,4 @@ export const FavoritesList = () => {
     </Box>
   )
 }
+
