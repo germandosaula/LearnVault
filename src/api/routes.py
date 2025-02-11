@@ -10,6 +10,7 @@ import os
 import firebase_admin
 from firebase_admin import auth, credentials
 from dotenv import load_dotenv
+import bcrypt
 #hola
 load_dotenv()
 
@@ -94,11 +95,15 @@ def handle_create_user():
     if "password" not in body: 
         return jsonify({'msg': 'Error'}), 400
     
+    
+    hashed_password = bcrypt.hashpw(body["password"].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
     user = User()
     
     user.username = body["username"]
     user.email = body["email"]
-    user.password = body["password"]
+    user.password = hashed_password
+
     
     db.session.add(user)
     db.session.commit()
@@ -260,8 +265,9 @@ def login_user():
     if user and user.auth_method == 'google':
         return jsonify({'msg': 'Usa Google para iniciar sesión'}), 400
 
-    if not user or user.password != password:
+    if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
         return jsonify({'msg': 'Credenciales inválidas'}), 401
+    
     # Convertir user.id a string antes de generar el token
     token = create_access_token(identity=str(user.email))
     user_data = {

@@ -128,7 +128,7 @@ export const FavoritesList = () => {
   }
 
   useEffect(() => {
-    console.log("Favorites:", favorites) // Verifica el array de favoritos
+    console.log("Favorites:", favorites)
   }, [favorites])
 
   return (
