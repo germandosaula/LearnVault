@@ -21,7 +21,7 @@ const cardsData = [
     icon: <PeopleIcon sx={{ fontSize: { xs: 50, sm: 65, md: 75 }, filter: "drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.3))" }} />,
   },
   {
-    title: "Organization Tools",
+    title: "Custom Organization Tools",
     description:
       "Easily organize, track, and filter content to enhance your learning experience.",
     gradient: "linear-gradient(135deg, #ff9a8b, #ff6a88)",
