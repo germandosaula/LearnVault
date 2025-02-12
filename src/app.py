@@ -34,22 +34,6 @@ else:
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 MIGRATE = Migrate(app, db, compare_type=True)
-db.init_app(app)
-with app.app_context():
-    db.create_all()
-    tables = db.engine.table_names()
-    print(f"📌 Tablas en la base de datos: {tables}")
-
-
-# -------------------- 📌 Función para inicializar datos --------------------
-def init_db_data():
-    with app.app_context():
-        db.create_all()
-
-
-# Ejecutar la inicialización de la base de datos
-with app.app_context():
-    init_db_data()
 
 
 # -------------------- 📌 Configuración de la API --------------------
