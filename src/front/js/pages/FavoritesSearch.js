@@ -205,8 +205,8 @@ export const FavoritesSearch = () => {
                 )}
                 <Grid container spacing={3}>
                     {filteredFavorites.slice(indexOfFirstItem, indexOfLastItem).map((doc) => (
-                        <Grid item key={`${doc.id}-${favorites.length}`} xs={12} sm={6} md={4}>
-                            <Card sx={{ cursor: "pointer", boxShadow: 3, borderRadius: 2, position: "relative" }}>
+                        <Grid item key={`${doc.id}-${favorites.length}`} xs={12} sm={6} md={4} sx={{ display: "flex", justifyContent: "center", }}>
+                            <Card sx={{ cursor: "pointer", boxShadow: 3, borderRadius: 2, position: "relative", aspectRatio: "1/1", }}>
                                 <IconButton
                                     onClick={(e) => {
                                         e.stopPropagation();

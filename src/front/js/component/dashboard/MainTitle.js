@@ -56,7 +56,9 @@ export const MainTitle = ({ text, speed = 100 }) => {
           WebkitTextFillColor: "transparent",
           display: "flex",
           alignItems: "center",
-          fontSize: { xs: "1.5rem", sm: "2rem", md: "2.5rem" },
+          fontSize: { xs: "1rem", sm: "2rem", md: "2.5rem" },
+          paddingLeft: {xs: "24px"},
+          paddingTop: { xs: "12px"},
         }}
       >
         {displayedText}

@@ -31,7 +31,7 @@ const Layout = () => {
       },
     },
   });
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 1200px)");
   const commonBoxStyles = {
     background: "linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%)",
     padding: isMobile ? "16px" : "24px",
