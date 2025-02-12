@@ -1,6 +1,7 @@
 # """
 # This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 # """
+import os
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Documents, Favorites, Task, Leaderboard, Badge, UserBadge, UserUploadBadge, UserFavoriteBadge
 from api.utils import generate_sitemap, APIException
@@ -14,11 +15,15 @@ import bcrypt
 #hola
 load_dotenv()
 
+private_key = os.getenv("FIREBASE_PRIVATE_KEY")
+# Reemplazamos los saltos de línea escapados por saltos de línea reales
+private_key = private_key.replace(r'\n', '\n')
+
 cred = credentials.Certificate({
     "type": os.getenv("FIREBASE_TYPE"),
     "project_id": os.getenv("FIREBASE_PROJECT_ID"),
     "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID"),
-    "private_key": os.getenv("FIREBASE_PRIVATE_KEY").replace(r'\n', '\n'),
+    "private_key": private_key,
     "client_email": os.getenv("FIREBASE_CLIENT_EMAIL"),
     "client_id": os.getenv("FIREBASE_CLIENT_ID"),
     "auth_uri": os.getenv("FIREBASE_AUTH_URI"),
@@ -28,6 +33,7 @@ cred = credentials.Certificate({
 })
 
 firebase_admin.initialize_app(cred)
+print(os.getenv("FIREBASE_PRIVATE_KEY"))
 
 api = Blueprint('api', __name__)
 CORS(api, resources={r"/*": {"origins": os.getenv("FRONT_URL"), "allow_headers": ["Authorization", "Content-Type"], "supports_credentials": True}})
