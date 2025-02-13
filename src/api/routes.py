@@ -16,7 +16,7 @@ import bcrypt
 #hola
 load_dotenv()
 
-private_key = os.getenv("FIREBASE_PRIVATE_KEY")
+private_key_base64 = os.getenv("FIREBASE_PRIVATE_KEY_BASE64")
 private_key = base64.b64decode(private_key_base64).decode('utf-8')
 
 cred = credentials.Certificate({
