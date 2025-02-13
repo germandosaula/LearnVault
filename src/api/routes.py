@@ -2,6 +2,7 @@
 # This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 # """
 import os
+import base64
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Documents, Favorites, Task, Leaderboard, Badge, UserBadge, UserUploadBadge, UserFavoriteBadge
 from api.utils import generate_sitemap, APIException
@@ -16,7 +17,7 @@ import bcrypt
 load_dotenv()
 
 private_key = os.getenv("FIREBASE_PRIVATE_KEY")
-private_key = private_key.replace(r'\n', '\n')
+private_key = base64.b64decode(private_key_base64).decode('utf-8')
 
 cred = credentials.Certificate({
     "type": os.getenv("FIREBASE_TYPE"),
