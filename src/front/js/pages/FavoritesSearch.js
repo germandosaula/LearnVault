@@ -207,7 +207,7 @@ export const FavoritesSearch = () => {
                 <Grid container spacing={3}>
                     {filteredFavorites.slice(indexOfFirstItem, indexOfLastItem).map((doc) => (
                         <Grid item key={`${doc.id}-${favorites.length}`} xs={12} sm={6} md={4} sx={{ display: "flex", justifyContent: "center", }}>
-                            <Card sx={{ cursor: "pointer", boxShadow: 3, borderRadius: 2, position: "relative", }}>
+                            <Card sx={{ cursor: "pointer", boxShadow: 3, borderRadius: 2, position: "relative", minHeight: 350,}}>
                                 <IconButton
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -255,7 +255,7 @@ export const FavoritesSearch = () => {
                                     <Typography variant="body2" color="text.secondary" sx={{ fontFamily: "'Poppins', sans-serif" }}>
                                         {doc.description}
                                     </Typography>
-                                    <Typography variant="subtitle2" color="primary" sx={{ mt: 1, fontFamily: "'Poppins', sans-serif" }}>
+                                    <Typography variant="subtitle2" color="primary" sx={{ mt: 1, fontFamily: "'Poppins', sans-serif",  }}>
                                         📁 {doc.subject}
                                     </Typography>
                                 </CardContent>

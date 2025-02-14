@@ -357,8 +357,8 @@ export const Search = () => {
             const isFavorite = favorites.some((fav) => fav.document_id === doc.id)
 
             return (
-              <Grid item key={doc.id} xs={12} sm={6} md={4}>
-                <Card sx={{ cursor: "pointer", boxShadow: 3, borderRadius: 2, position: "relative" }}>
+              <Grid item key={doc.id} xs={12} sm={6} md={4} >
+                <Card sx={{ cursor: "pointer", boxShadow: 3, borderRadius: 2, position: "relative", minHeight: 350, }}>
                   <IconButton
                     onClick={(e) => {
                       e.stopPropagation()
