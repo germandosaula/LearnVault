@@ -158,11 +158,12 @@ export const FavoritesSearch = () => {
                 <Box
                     sx={{
                         display: "flex",
+                        flexDirection: { xs: "column", md: "row" },
                         justifyContent: "space-between",
-                        alignItems: "center",
+                        alignItems: { xs: "stretch", md: "center" },
                         mb: 3,
                         gap: 2,
-                    }}
+                      }}
                 >
                     <TextField
                         label="Search by title"
@@ -206,7 +207,7 @@ export const FavoritesSearch = () => {
                 <Grid container spacing={3}>
                     {filteredFavorites.slice(indexOfFirstItem, indexOfLastItem).map((doc) => (
                         <Grid item key={`${doc.id}-${favorites.length}`} xs={12} sm={6} md={4} sx={{ display: "flex", justifyContent: "center", }}>
-                            <Card sx={{ cursor: "pointer", boxShadow: 3, borderRadius: 2, position: "relative", aspectRatio: "1/1", }}>
+                            <Card sx={{ cursor: "pointer", boxShadow: 3, borderRadius: 2, position: "relative", }}>
                                 <IconButton
                                     onClick={(e) => {
                                         e.stopPropagation();

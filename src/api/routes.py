@@ -2,7 +2,6 @@
 # This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 # """
 import os
-import base64
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Documents, Favorites, Task, Leaderboard, Badge, UserBadge, UserUploadBadge, UserFavoriteBadge
 from api.utils import generate_sitemap, APIException
@@ -16,14 +15,11 @@ import bcrypt
 #hola
 load_dotenv()
 
-private_key_base64 = os.getenv("FIREBASE_PRIVATE_KEY_BASE64")
-private_key = base64.b64decode(private_key_base64).decode('utf-8')
-
 cred = credentials.Certificate({
     "type": os.getenv("FIREBASE_TYPE"),
     "project_id": os.getenv("FIREBASE_PROJECT_ID"),
     "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID"),
-    "private_key": private_key,
+    "private_key": os.getenv("FIREBASE_PRIVATE_KEY").replace('\\n', '\n'),
     "client_email": os.getenv("FIREBASE_CLIENT_EMAIL"),
     "client_id": os.getenv("FIREBASE_CLIENT_ID"),
     "auth_uri": os.getenv("FIREBASE_AUTH_URI"),
@@ -33,10 +29,10 @@ cred = credentials.Certificate({
 })
 
 firebase_admin.initialize_app(cred)
-print(os.getenv("FIREBASE_PRIVATE_KEY"))
+
 
 api = Blueprint('api', __name__)
-CORS(api, resources={r"/*": {"origins": os.getenv("FRONT_URL"), "allow_headers": ["Authorization", "Content-Type"], "supports_credentials": True}})
+
 
 @api.after_request
 def add_cors_headers(response):
@@ -46,7 +42,7 @@ def add_cors_headers(response):
     response.headers['Access-Control-Allow-Credentials'] = 'true'  # Habilitar credenciales
     return response
 
-
+CORS(api, resources={r"/*": {"origins": os.getenv("FRONT_URL"), "allow_headers": ["Authorization", "Content-Type"], "supports_credentials": True}})
 @api.route('/google-auth', methods=['POST'])
 def google_auth():
     data = request.get_json()
@@ -88,67 +84,67 @@ def google_auth():
 ## CRUD Users:
 @api.route('/signup', methods=['POST'])
 def handle_create_user():
-    
+
     body = request.get_json()
-    
+
     if body is None:
         return jsonify({'msg': 'Error'}), 400
-    if "username" not in body: 
+    if "username" not in body:
         return jsonify({'msg': 'Error'}), 400
-    if "email" not in body: 
+    if "email" not in body:
         return jsonify({'msg': 'Error'}), 400
-    if "password" not in body: 
+    if "password" not in body:
         return jsonify({'msg': 'Error'}), 400
-    
-    
+
+
     hashed_password = bcrypt.hashpw(body["password"].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     user = User()
-    
+
     user.username = body["username"]
     user.email = body["email"]
     user.password = hashed_password
 
-    
+
     db.session.add(user)
     db.session.commit()
-    
+
     return jsonify({}), 201
 
 
 @api.route('/auth', methods=['POST'])
 def handle_auth():
     body = request.get_json()
-    
+
     if body is None:
         return jsonify({'msg': 'Error'}), 400
     if "id" not in body:
         return jsonify({'msg': 'Error'}), 400
-    if "username" not in body: 
+    if "username" not in body:
         return jsonify({'msg': 'Error'}), 400
-    if "email" not in body: 
+    if "email" not in body:
         return jsonify({'msg': 'Error'}), 400
-    if "password" not in body: 
+    if "password" not in body:
         return jsonify({'msg': 'Error'}), 400
-    
-    user = User.query.filter_by( 
-         id = body["id"], 
-         username = body["username"], 
-         email = body["email"], 
+
+    user = User.query.filter_by(
+         id = body["id"],
+         username = body["username"],
+         email = body["email"],
          password = body["password"]).first()
-    
-    if user is None: 
+
+    if user is None:
         return jsonify({'msg': 'user not found'}), 401
-    
+
     token = create_access_token(identity= user.email)
-    
-    
+
+
     return jsonify({'token': token}), 200
 
 
 @api.route('/users', methods=['GET'])
 def handle_get_users():
-    
+
     all_users = User.query.all()
     all_users = list(map(lambda x: x.serialize(), all_users))
 
@@ -157,7 +153,7 @@ def handle_get_users():
 
 @api.route('/user/<int:id>', methods=['GET'])
 def handle_get_user(id):
-    
+
     user = User.query.get(id)
     user = user.serialize()
 
@@ -177,21 +173,21 @@ def get_current_user():
     return jsonify(user.serialize()), 200
 
 @api.route('/user/<int:id>', methods=['DELETE'])
-@jwt_required()  
+@jwt_required()
 def handle_delete_user(id):
-    
+
     current_user = get_jwt_identity()
-    
+
     user = User.query.get(id)
 
     if user is None:
         return jsonify({'msg': 'id does not exist'}), 404
     if user.username != current_user and not current_user == "admin":
-        return jsonify({'msg': 'Permission denied'}), 403 
-    
+        return jsonify({'msg': 'Permission denied'}), 403
+
     db.session.delete(user)
     db.session.commit()
-    
+
     return jsonify({}), 204
 
 @api.route('/user/<int:id>', methods=['PUT'])
@@ -224,12 +220,12 @@ def handle_update_user(id):
 @api.route('/dashboard', methods=['GET'])
 @jwt_required()
 def handle_dashboard():
-    
-    current_user_email = get_jwt_identity() 
-    
+
+    current_user_email = get_jwt_identity()
+
     user = User.query.filter_by(email=current_user_email).first()
     if user is None:
-        return jsonify({'msg': 'user not exist'}), 404 
+        return jsonify({'msg': 'user not exist'}), 404
 
     response_body = {
         "message": f"This is the dashboard for user: {current_user_email}"
@@ -239,11 +235,11 @@ def handle_dashboard():
 
 
 @api.route('/search', methods=['GET'])
-@jwt_required() 
+@jwt_required()
 def handle_search():
-    
+
     current_user_email = get_jwt_identity()
-    
+
     user = User.query.filter_by(email=current_user_email).first()
     if user is None:
         return jsonify({'msg': 'user not exist'}), 404
@@ -272,7 +268,7 @@ def login_user():
 
     if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
         return jsonify({'msg': 'Credenciales inválidas'}), 401
-    
+
     # Convertir user.id a string antes de generar el token
     token = create_access_token(identity=str(user.email))
     user_data = {
@@ -321,9 +317,9 @@ def get_documents():
 
 @api.route('/document/<int:id>', methods=['GET'])
 def handle_get_document(id):
-    
+
     document = Documents.query.get(id)
-    
+
     if document is None:
         return jsonify({'msg': 'Document not found'}), 404
 
@@ -332,7 +328,7 @@ def handle_get_document(id):
 
 @api.route('/document/<int:id>', methods=['PUT'])
 def handle_update_document(id):
-    
+
     document = Documents.query.get(id)
 
     if document is None:
@@ -358,7 +354,7 @@ def handle_update_document(id):
 
 @api.route('/document/<int:id>', methods=['DELETE'])
 def handle_delete_document(id):
-    
+
     document = Documents.query.get(id)
 
     if document is None:
@@ -382,9 +378,9 @@ def create_favorite():
         user = User.query.filter_by(email=current_user_id).first()
         if not user:
             return jsonify({"msg": "Usuario no encontrado"}), 404
-        
+
         body = request.get_json()
-        
+
         if not body or "documents_id" not in body:
             return jsonify({'msg': 'Faltan datos'}), 400
 
@@ -393,7 +389,7 @@ def create_favorite():
             return jsonify({'msg': 'Documento no encontrado'}), 404
 
         new_favorite = Favorites(user_id=user.id, documents_id=body["documents_id"])  # <-- Usar user.id como número
-        
+
         db.session.add(new_favorite)
         db.session.commit()
 
@@ -402,7 +398,7 @@ def create_favorite():
     except Exception as e:
         print(f"❌ Error interno: {e}")  # <-- Imprime el error en la consola del servidor
         return jsonify({"error": "Error interno", "message": str(e)}), 500
-    
+
 @api.route('/favorites', methods=['GET'])
 @jwt_required()
 def get_favorites():
@@ -467,7 +463,7 @@ def delete_favorite(id):
 def handle_create_task():
     try:
         print("✅ Recibida solicitud en /tasks")
-        
+
         body = request.get_json()
         if not body:
             print("❌ Error: No se recibió JSON en la petición")
@@ -509,16 +505,16 @@ def handle_create_task():
 @api.route('/tasks', methods=['GET'])
 @jwt_required()
 def handle_get_tasks():
-    
+
     current_user_email = get_jwt_identity()
-    
+
     user = User.query.filter_by(email=current_user_email).first()
-    
+
     if user is None:
         return jsonify({'msg': 'User not found'}), 404
 
     tasks = Task.query.filter_by(user_id=user.id).all()
-    
+
     result = [task.serialize() for task in tasks]
 
     return jsonify(result), 200
@@ -559,16 +555,16 @@ def update_task(task_id):
 @api.route('/tasks/<int:id>', methods=['GET'])
 @jwt_required()
 def handle_get_task(id):
-    
+
     current_user_email = get_jwt_identity()
-    
+
     user = User.query.filter_by(email=current_user_email).first()
-    
+
     if user is None:
         return jsonify({'msg': 'User not found'}), 404
 
     task = Task.query.filter_by(id=id, user_id=user.id).first()
-    
+
     if task is None:
         return jsonify({'msg': 'Task not found'}), 404
 
@@ -578,16 +574,16 @@ def handle_get_task(id):
 @api.route('/tasks/<int:id>', methods=['PUT'])
 @jwt_required()
 def handle_update_task(id):
-    
+
     current_user_email = get_jwt_identity()
-    
+
     user = User.query.filter_by(email=current_user_email).first()
-    
+
     if user is None:
         return jsonify({'msg': 'User not found'}), 404
 
     task = Task.query.filter_by(id=id, user_id=user.id).first()
-    
+
     if task is None:
         return jsonify({'msg': 'Task not found'}), 404
 
@@ -610,16 +606,16 @@ def handle_update_task(id):
 @api.route('/tasks/<int:id>', methods=['DELETE'])
 @jwt_required()
 def handle_delete_task(id):
-    
+
     current_user_email = get_jwt_identity()
-    
+
     user = User.query.filter_by(email=current_user_email).first()
-    
+
     if user is None:
         return jsonify({'msg': 'User not found'}), 404
 
     task = Task.query.filter_by(id=id, user_id=user.id).first()
-    
+
     if task is None:
         return jsonify({'msg': 'Task not found'}), 404
 
@@ -641,12 +637,12 @@ def get_achievements():
         # Lista de logros desbloqueados
         unlocked = [ach for ach in [3, 5, 10, 15, 30] if days_logged >= ach]
 
-        return jsonify(unlocked), 200 
+        return jsonify(unlocked), 200
 
     except Exception as e:
         print(f"Error en /achievements: {e}")  # 🔍 Log para ver errores en la terminal
         return jsonify({"error": "Error interno", "message": str(e)}), 500
-    
+
 # ------------------- USER PROGRESS -------------------
 @api.route("/user/<int:user_id>", methods=["GET"])
 def get_user_progress(user_id):
@@ -690,7 +686,7 @@ def get_leaderboard():
                 "username": user.username,
                 "points": entry.points
             })
-    
+
     print(f"✅ Datos del leaderboard: {leaderboard_data}")
     return jsonify(leaderboard_data)
 
@@ -706,7 +702,7 @@ def add_experience(user_id):
 
     user.experience += xp_to_add
     db.session.commit()
-    
+
     return jsonify({"message": f"Added {xp_to_add} XP", "new_experience": user.experience})
 
 # ------------------- ADD BADGE -------------------
@@ -761,51 +757,51 @@ def complete_action(user_id):
         badge_unlocked = Badge.query.get(2)  # Explorador
         new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
         db.session.add(new_badge)
-        
-    if action == "add_favorite" and not UserBadge.query.filter_by(user_id=user.id, badge_id=3).first(): 
-        badge_unlocked = Badge.query.get(3)  
+
+    if action == "add_favorite" and not UserBadge.query.filter_by(user_id=user.id, badge_id=3).first():
+        badge_unlocked = Badge.query.get(3)
         new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
-        db.session.add(new_badge)    
-        
+        db.session.add(new_badge)
+
     # 🔥 Desbloqueo de insignias de UploadBadge (Basado en documentos subidos)
-    
+
     upload_badge = UserUploadBadge.query.filter_by(user_id=user.id).first()  # Tomamos el primer UserUploadBadge del usuario
-    
+
     if upload_badge.documents_uploaded >= 20 and not UserBadge.query.filter_by(user_id=user.id, badge_id=upload_badge.upload_badge.id).first():
         badge_unlocked = upload_badge.upload_badge
         new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
         db.session.add(new_badge)
-        
+
     elif upload_badge.documents_uploaded >= 10 and not UserBadge.query.filter_by(user_id=user.id, badge_id=upload_badge.upload_badge.id).first():
         badge_unlocked = upload_badge.upload_badge
         new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
         db.session.add(new_badge)
-        
+
     elif upload_badge.documents_uploaded >= 5 and not UserBadge.query.filter_by(user_id=user.id, badge_id=upload_badge.upload_badge.id).first():
-        badge_unlocked = upload_badge.upload_badge 
+        badge_unlocked = upload_badge.upload_badge
         new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
         db.session.add(new_badge)
 
     # 🔥 Desbloqueo de insignias de FavoriteBadge (Basado en la cantidad de favoritos)
-    
+
     favorite_badge = UserFavoriteBadge.query.filter_by(user_id=user.id).first()  # Tomamos el primer UserFavoriteBadge del usuario
-    
+
     if favorite_badge.favorites_count >= 20 and not UserBadge.query.filter_by(user_id=user.id, badge_id=favorite_badge.favorite_badge.id).first():
         badge_unlocked = favorite_badge.favorite_badge
         new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
         db.session.add(new_badge)
-        
+
     elif favorite_badge.favorites_count >= 10 and not UserBadge.query.filter_by(user_id=user.id, badge_id=favorite_badge.favorite_badge.id).first():
         badge_unlocked = favorite_badge.favorite_badge
         new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
         db.session.add(new_badge)
-        
+
     elif favorite_badge.favorites_count >= 5 and not UserBadge.query.filter_by(user_id=user.id, badge_id=favorite_badge.favorite_badge.id).first():
         badge_unlocked = favorite_badge.favorite_badge
         new_badge = UserBadge(user_id=user.id, badge_id=badge_unlocked.id)
         db.session.add(new_badge)
-        
-        
+
+
     db.session.commit()
 
     response = {"xp_gained": xp_gained, "new_experience": user.experience}
