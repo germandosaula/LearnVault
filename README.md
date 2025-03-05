@@ -1,81 +1,75 @@
-# WebApp boilerplate with React JS and Flask API
+# LearnVault
 
-Build web applications using React.js for the front end and python/flask for your backend API.
+![LearnVault Img](public/dashboard.png)
 
-- Documentation can be found here: https://start.4geeksacademy.com/starters/react-flask
-- Here is a video on [how to use this template](https://www.loom.com/share/f37c6838b3f1496c95111e515e83dd9b)
-- Integrated with Pipenv for package managing.
-- Fast deployment to heroku [in just a few steps here](https://start.4geeksacademy.com/backend/deploy-heroku-posgres).
-- Use of .env file.
-- SQLAlchemy integration for database abstraction.
+LearnVault es una plataforma colaborativa que permite a los usuarios almacenar, compartir y gestionar recursos educativos de manera eficiente. Diseñada para estudiantes, docentes y entusiastas del aprendizaje, LearnVault facilita la organización y el acceso a materiales de estudio en un entorno interactivo y organizado.
 
-### 1) Installation:
+## 🚀 Características
 
-> If you use Github Codespaces (recommended) or Gitpod this template will already come with Python, Node and the Posgres Database installed. If you are working locally make sure to install Python 3.10, Node 
+- 📂 **Repositorio de Recursos**: Subida y gestión de materiales educativos.
+- 🔍 **Búsqueda Avanzada**: Encuentra recursos rápidamente con filtros personalizados.
+- 📅 **Planificación de Estudio**: Herramientas para organizar tu aprendizaje.
+- 💬 **Interacción Comunitaria**: Comenta y valora recursos compartidos.
+- 🎨 **Personalización**: Adapta la experiencia según tus preferencias.
 
-It is recomended to install the backend first, make sure you have Python 3.8, Pipenv and a database engine (Posgress recomended)
+## 🛠️ Tecnologías Utilizadas
 
-1. Install the python packages: `$ pipenv install`
-2. Create a .env file based on the .env.example: `$ cp .env.example .env`
-3. Install your database engine and create your database, depending on your database you have to create a DATABASE_URL variable with one of the possible values, make sure you replace the valudes with your database information:
+- **Frontend**: React.js, Material-UI
+- **Backend**: Flask, Python
+- **Base de Datos**: PostgreSQL
+- **Autenticación**: JWT
+- **Almacenamiento**: FireBase Storage
+- **Despliegue**: Render (en proceso)
 
-| Engine    | DATABASE_URL                                        |
-| --------- | --------------------------------------------------- |
-| SQLite    | sqlite:////test.db                                  |
-| MySQL     | mysql://username:password@localhost:port/example    |
-| Postgress | postgres://username:password@localhost:5432/example |
+## 📦 Instalación y Configuración
 
-4. Migrate the migrations: `$ pipenv run migrate` (skip if you have not made changes to the models on the `./src/api/models.py`)
-5. Run the migrations: `$ pipenv run upgrade`
-6. Run the application: `$ pipenv run start`
-
-> Note: Codespaces users can connect to psql by typing: `psql -h localhost -U gitpod example`
-
-### Undo a migration
-
-You are also able to undo a migration by running
-
-```sh
-$ pipenv run downgrade
+### 1️⃣ Clonar el Repositorio
+```bash
+ git clone https://github.com/germandosaula/LearnVault.git
+ cd LearnVault
 ```
 
-### Backend Populate Table Users
-
-To insert test users in the database execute the following command:
-
-```sh
-$ flask insert-test-users 5
+### 2️⃣ Backend
+#### Configurar Entorno Virtual
+```bash
+ python -m venv venv
+ source venv/bin/activate  # En Windows: venv\Scripts\activate
 ```
 
-And you will see the following message:
-
-```
-  Creating test users
-  test_user1@test.com created.
-  test_user2@test.com created.
-  test_user3@test.com created.
-  test_user4@test.com created.
-  test_user5@test.com created.
-  Users created successfully!
+#### Instalar Dependencias
+```bash
+ pip install
 ```
 
-### **Important note for the database and the data inside it**
+#### Configurar Variables de Entorno
+Crear un archivo `.env` en la raíz del proyecto con las siguientes variables:
+```env
+DATABASE_URL=postgresql://usuario:password@localhost:5432/learnvault
+SECRET_KEY=
+FRONTEND_URL=
+BACKEND_URL=
+```
 
-Every Github codespace environment will have **its own database**, so if you're working with more people eveyone will have a different database and different records inside it. This data **will be lost**, so don't spend too much time manually creating records for testing, instead, you can automate adding records to your database by editing ```commands.py``` file inside ```/src/api``` folder. Edit line 32 function ```insert_test_data``` to insert the data according to your model (use the function ```insert_test_users``` above as an example). Then, all you need to do is run ```pipenv run insert-test-data```.
+#### Ejecutar el Servidor
+```bash
+ flask run
+```
 
-### Front-End Manual Installation:
+### 3️⃣ Frontend
+#### Instalar Dependencias
+```bash
+ npm install
+```
 
--   Make sure you are using node version 14+ and that you have already successfully installed and runned the backend.
+#### Ejecutar la Aplicación
+```bash
+ npm run
+```
 
-1. Install the packages: `$ npm install`
-2. Start coding! start the webpack dev server `$ npm run start`
+## 📬 Contacto
+Si tienes preguntas o sugerencias, no dudes en contactarme:
+- 📧 **Email**: german.dosaula@gmail.com
+- 🐙 **GitHub**: [@germandosaula](https://github.com/germandosaula)  
+- 💼 **LinkedIn**: [German Dosaula](https://linkedin.com/in/german-dosaula-ces)
 
-## Publish your website!
-
-This boilerplate it's 100% read to deploy with Render.com and Heroku in a matter of minutes. Please read the [official documentation about it](https://start.4geeksacademy.com/deploy).
-
-### Contributors
-
-This template was built as part of the 4Geeks Academy [Coding Bootcamp](https://4geeksacademy.com/us/coding-bootcamp) by [Alejandro Sanchez](https://twitter.com/alesanchezr) and many other contributors. Find out more about our [Full Stack Developer Course](https://4geeksacademy.com/us/coding-bootcamps/part-time-full-stack-developer), and [Data Science Bootcamp](https://4geeksacademy.com/us/coding-bootcamps/datascience-machine-learning).
-
-You can find other templates and resources like this at the [school github page](https://github.com/4geeksacademy/).
+---
